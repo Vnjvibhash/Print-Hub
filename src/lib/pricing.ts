@@ -227,6 +227,46 @@ export const DEFAULT_TIERED_SERVICES: Record<string, any> = {
     { minQty: 16, maxQty: 30, singleSidePrice: 350 },
     { minQty: 31, maxQty: null, singleSidePrice: 300 },
   ],
+
+  // --- Lamination (by paper size) ---
+  "lamination-a4": [
+    { minQty: 1, maxQty: 10, singleSidePrice: 10 },
+    { minQty: 11, maxQty: 30, singleSidePrice: 8 },
+    { minQty: 31, maxQty: 100, singleSidePrice: 7 },
+    { minQty: 101, maxQty: null, singleSidePrice: 6 },
+  ],
+  "lamination-small": [
+    { minQty: 1, maxQty: 10, singleSidePrice: 7 },
+    { minQty: 11, maxQty: 30, singleSidePrice: 6 },
+    { minQty: 31, maxQty: 100, singleSidePrice: 5 },
+    { minQty: 101, maxQty: null, singleSidePrice: 4 },
+  ],
+  "lamination-a3": [
+    { minQty: 1, maxQty: 10, singleSidePrice: 18 },
+    { minQty: 11, maxQty: 30, singleSidePrice: 15 },
+    { minQty: 31, maxQty: 100, singleSidePrice: 12 },
+    { minQty: 101, maxQty: null, singleSidePrice: 10 },
+  ],
+
+  // --- Finishing Services ---
+  "comb-binding": [
+    { minQty: 1, maxQty: 5, singleSidePrice: 35 },
+    { minQty: 6, maxQty: 15, singleSidePrice: 30 },
+    { minQty: 16, maxQty: 30, singleSidePrice: 25 },
+    { minQty: 31, maxQty: null, singleSidePrice: 20 },
+  ],
+  "stapling": [
+    { minQty: 1, maxQty: 10, singleSidePrice: 5 },
+    { minQty: 11, maxQty: 30, singleSidePrice: 4 },
+    { minQty: 31, maxQty: 100, singleSidePrice: 3 },
+    { minQty: 101, maxQty: null, singleSidePrice: 2 },
+  ],
+  "file-punching": [
+    { minQty: 1, maxQty: 10, singleSidePrice: 3 },
+    { minQty: 11, maxQty: 30, singleSidePrice: 2.5 },
+    { minQty: 31, maxQty: 100, singleSidePrice: 2 },
+    { minQty: 101, maxQty: null, singleSidePrice: 1.5 },
+  ],
 };
 
 // Retrieve service tiers synchronously

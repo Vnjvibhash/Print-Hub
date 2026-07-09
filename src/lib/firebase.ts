@@ -87,6 +87,17 @@ const DEFAULT_SERVICES: ServiceItem[] = [
   { id: "lamination", name: "Lamination", category: "printing", description: "Thermal plastic lamination to protect documents from water and tearing.", basePrice: 20, features: ["Heavy duty plastic pouches", "Waterproof and tearproof", "Glossy transparent look"], image: "/images/lamination.jpg" },
   { id: "banner-print", name: "Flex & Banner Printing", category: "printing", description: "High-durability outdoor flex banners and promotional advertising banners.", basePrice: 40, features: ["12oz premium heavy vinyl", "Weatherproof and UV-resistant", "Includes metal grommets"], image: "/images/banner.jpg" },
 
+  // Lamination variants (by paper size)
+  { id: "lamination-a4", name: "A4 Lamination", category: "printing", description: "Thermal plastic lamination for A4 documents — waterproof, tearproof and crystal clear.", basePrice: 10, features: ["A4 size lamination", "Thermal gloss finish", "Waterproof & tearproof"] as string[], image: "/images/lamination.jpg" },
+  { id: "lamination-small", name: "Small Size Lamination", category: "printing", description: "Compact lamination for cards, IDs, and small documents up to A5/visiting card size.", basePrice: 7, features: ["A5 / small card size", "Heavy-duty plastic pouch", "Crystal clear glossy finish"] as string[], image: "/images/lamination.jpg" },
+  { id: "lamination-a3", name: "A3 Lamination", category: "printing", description: "Large-format A3 thermal lamination for posters, charts and presentation sheets.", basePrice: 18, features: ["A3 size lamination", "Thermal gloss coating", "Rigid protective finish"] as string[], image: "/images/lamination.jpg" },
+
+  // Finishing services
+  { id: "comb-binding", name: "Comb Binding", category: "printing", description: "Professional plastic comb binding for reports, manuals and booklets up to 400 pages.", basePrice: 35, features: ["Up to 400 pages", "Flexible comb spine", "Clear front cover included"] as string[], image: "/images/spiral.jpg" },
+  { id: "stapling", name: "Stapling Service", category: "printing", description: "Corner or booklet stapling for multi-page documents and pamphlets.", basePrice: 5, features: ["Corner or saddle stapling", "Fast turnaround", "Up to 50 pages"] as string[], image: "/images/spiral.jpg" },
+  { id: "file-punching", name: "File Punching", category: "printing", description: "Standard 2-hole or 4-hole file punching for office documents and reports.", basePrice: 3, features: ["2-hole or 4-hole punch", "Clean precision cuts", "Compatible with all binders"] as string[], image: "/images/spiral.jpg" },
+
+
   // Business Services
   { id: "visiting-cards", name: "Business & Visiting Cards", category: "business", description: "Standard 350GSM business cards with matte/gloss lamination.", basePrice: 1.5, features: ["350 GSM premium cardstock", "Single or double sided", "Matte/Gloss finishing"], image: "/images/cards.jpg" },
   { id: "letterheads", name: "Company Letterheads", category: "business", description: "Professional executive letterheads on premium 100GSM royal executive paper.", basePrice: 4, features: ["100 GSM premium paper", "High resolution company logo", "Executive finish"], image: "/images/letterhead.jpg" },
