@@ -391,7 +391,8 @@ export function calculatePricing(
   serviceId: string,
   quantity: number,
   specs: SpecificationOptions,
-  useStoredData = true
+  useStoredData = true,
+  appliedCoupon?: OfferRecord | null
 ): PriceBreakdown {
   // 1. Fetch current config from localStorage if available (Admin pricing overrides)
   const rates = getAdminRates(useStoredData);
@@ -451,19 +452,21 @@ export function calculatePricing(
     subtotal = (ratePerUnit * pages + optionsPrice) * copies * qty;
   }
 
-  // 3. Apply best offer/discount if available
-  const offer = getBestOfferForService(serviceId, useStoredData);
+  // 3. Apply coupon-based discount if available
   let discount = 0;
-  if (offer) {
-    if (offer.discountType === "percentage") {
-      discount = Math.round(subtotal * (offer.discountValue / 100) * 100) / 100;
-    } else {
-      discount = Math.min(offer.discountValue, subtotal);
+  if (appliedCoupon) {
+    const isApplicable = appliedCoupon.applicableServiceIds.length === 0 || appliedCoupon.applicableServiceIds.includes(serviceId);
+    if (isApplicable) {
+      if (appliedCoupon.discountType === "percentage") {
+        discount = Math.round(subtotal * (appliedCoupon.discountValue / 100) * 100) / 100;
+      } else {
+        discount = Math.min(appliedCoupon.discountValue, subtotal);
+      }
+      if (appliedCoupon.minOrderValue && subtotal < appliedCoupon.minOrderValue) {
+        discount = 0; // min order value not met
+      }
+      subtotal = Math.max(0, subtotal - discount);
     }
-    if (offer.minOrderValue && subtotal < offer.minOrderValue) {
-      discount = 0; // min order value not met
-    }
-    subtotal = Math.max(0, subtotal - discount);
   }
 
   // 4. GST Tax Calculation (configurable tax rate, default 18%)

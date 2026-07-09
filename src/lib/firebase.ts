@@ -747,6 +747,30 @@ export const dbService = {
       if (results.length === 0) {
         if (collName === "services") return DEFAULT_SERVICES as unknown as T[];
         if (collName === "products") return DEFAULT_PRODUCTS as unknown as T[];
+        if (collName === "carousel") {
+          const defaultSlides = (seedData.carousel || []) as unknown as T[];
+          // Auto-seed to Firestore
+          defaultSlides.forEach(async (slide: any) => {
+            try {
+              await setDoc(doc(firebaseDb!, "carousel", slide.id), slide);
+            } catch (err) {
+              console.warn(`Failed to auto-seed slide ${slide.id} to Firestore:`, err);
+            }
+          });
+          return defaultSlides;
+        }
+        if (collName === "offers") {
+          const defaultOffers = (seedData.offers || []) as unknown as T[];
+          // Auto-seed to Firestore
+          defaultOffers.forEach(async (offer: any) => {
+            try {
+              await setDoc(doc(firebaseDb!, "offers", offer.id), offer);
+            } catch (err) {
+              console.warn(`Failed to auto-seed offer ${offer.id} to Firestore:`, err);
+            }
+          });
+          return defaultOffers;
+        }
       }
 
       return results;

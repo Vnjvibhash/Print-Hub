@@ -176,6 +176,7 @@ export interface CarouselSlide {
 
 export interface OfferRecord {
   id: string;
+  code: string; // The coupon code required to apply this discount
   name: string;
   description: string;
   discountType: 'percentage' | 'flat';

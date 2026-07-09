@@ -555,6 +555,7 @@
   "offers": [
     {
       "id": "offer-welcome-10",
+      "code": "WELCOME10",
       "name": "Welcome Offer",
       "description": "Get 10% off on your first printing order.",
       "discountType": "percentage",
@@ -568,6 +569,7 @@
     },
     {
       "id": "offer-bulk-print",
+      "code": "BULK200",
       "name": "Bulk Printing Discount",
       "description": "Flat ₹200 off on bulk printing orders above ₹1000.",
       "discountType": "flat",
@@ -581,6 +583,7 @@
     },
     {
       "id": "offer-merchandise",
+      "code": "MERCH15",
       "name": "Merchandise Combo Deal",
       "description": "Buy custom mugs and t-shirts together and save 15%.",
       "discountType": "percentage",

@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 const EMPTY_OFFER: Omit<OfferRecord, "id" | "createdAt"> = {
+  code: "",
   name: "",
   description: "",
   discountType: "percentage",
@@ -81,6 +82,7 @@ export default function AdminOffersPage() {
   const openEditModal = (offer: OfferRecord) => {
     setEditingOffer(offer);
     setFormData({
+      code: offer.code || "",
       name: offer.name,
       description: offer.description,
       discountType: offer.discountType,
@@ -95,12 +97,14 @@ export default function AdminOffersPage() {
   };
 
   const handleSave = async () => {
-    if (!formData.name.trim()) return;
+    if (!formData.name.trim() || !formData.code.trim()) return;
     setSaving(true);
+    const codeUpper = formData.code.trim().toUpperCase();
     try {
       if (editingOffer) {
         const record: OfferRecord = {
           ...formData,
+          code: codeUpper,
           id: editingOffer.id,
           createdAt: editingOffer.createdAt,
           startDate: new Date(formData.startDate).toISOString(),
@@ -112,6 +116,7 @@ export default function AdminOffersPage() {
         const newId = `offer-${Date.now().toString(36)}`;
         const record: OfferRecord = {
           ...formData,
+          code: codeUpper,
           id: newId,
           createdAt: new Date().toISOString(),
           startDate: new Date(formData.startDate).toISOString(),
@@ -232,6 +237,9 @@ export default function AdminOffersPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <h3 className="text-sm font-bold text-white truncate">{offer.name}</h3>
+                      <span className="px-2 py-0.5 text-[9px] font-mono font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-lg">
+                        {offer.code}
+                      </span>
                       {active && (
                         <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/10 text-emerald-400">
                           <Zap className="h-2.5 w-2.5" /> LIVE
@@ -309,9 +317,15 @@ export default function AdminOffersPage() {
             </div>
 
             <div className="p-6 space-y-4 overflow-y-auto flex-grow">
-              <div>
-                <label className="block text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1.5">Offer Name *</label>
-                <input type="text" value={formData.name} onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. Summer Sale 2026" className="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-sm text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500/30" />
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1.5">Offer Name *</label>
+                  <input type="text" value={formData.name} onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))} placeholder="e.g. Summer Sale 2026" className="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-sm text-zinc-200 placeholder:text-zinc-650 focus:outline-none focus:border-indigo-500/30" />
+                </div>
+                <div>
+                  <label className="block text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1.5">Coupon Code *</label>
+                  <input type="text" value={formData.code} onChange={(e) => setFormData((p) => ({ ...p, code: e.target.value }))} placeholder="e.g. SUMMER10" className="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-sm text-zinc-200 placeholder:text-zinc-650 focus:outline-none focus:border-indigo-500/30 font-mono uppercase" />
+                </div>
               </div>
 
               <div>

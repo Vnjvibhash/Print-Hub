@@ -8,7 +8,7 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { calculatePricing } from "@/lib/pricing";
 import { dbService } from "@/lib/firebase";
 import { generateInvoicePDF } from "@/lib/invoice";
-import { Order, SpecificationOptions, PriceBreakdown } from "@/types";
+import { Order, SpecificationOptions, PriceBreakdown, OfferRecord } from "@/types";
 import { CreditCard, CheckCircle, Smartphone, MapPin, ChevronRight, FileText, Download, Printer } from "lucide-react";
 import QRCode from "qrcode";
 
@@ -33,6 +33,13 @@ function CheckoutContent() {
   const [quantity, setQuantity] = useState(1);
   const [specs, setSpecs] = useState<SpecificationOptions>({});
   const [priceBreakdown, setPriceBreakdown] = useState<PriceBreakdown | null>(null);
+
+  // Coupon states
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<OfferRecord | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [couponSuccess, setCouponSuccess] = useState("");
+  const [offersList, setOffersList] = useState<OfferRecord[]>([]);
 
   // Form states
   const [email, setEmail] = useState("");
@@ -67,6 +74,16 @@ function CheckoutContent() {
     }
     loadService();
 
+    async function loadOffers() {
+      try {
+        const offers = await dbService.getCollection<OfferRecord>("offers");
+        setOffersList(offers);
+      } catch (err) {
+        console.error("Failed to load offers:", err);
+      }
+    }
+    loadOffers();
+
     const q = Math.max(1, Number(qtyParam) || 1);
     setQuantity(q);
 
@@ -81,11 +98,72 @@ function CheckoutContent() {
     setSpecs(parsedSpecs);
   }, [serviceId, qtyParam, specsParam, router]);
 
+  const handleApplyCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    setCouponError("");
+    setCouponSuccess("");
+
+    if (!couponCode.trim()) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
+
+    const codeUpper = couponCode.trim().toUpperCase();
+    const match = offersList.find(
+      (o) => o.code?.toUpperCase() === codeUpper && o.isActive
+    );
+
+    if (!match) {
+      setCouponError("Invalid or expired coupon code");
+      setAppliedCoupon(null);
+      return;
+    }
+
+    // Check dates
+    const now = new Date();
+    const start = new Date(match.startDate);
+    const end = new Date(match.endDate);
+    if (now < start || now > end) {
+      setCouponError("This coupon code has expired or is not active yet");
+      setAppliedCoupon(null);
+      return;
+    }
+
+    // Check service applicability
+    const isApplicable =
+      match.applicableServiceIds.length === 0 ||
+      (serviceId && match.applicableServiceIds.includes(serviceId));
+
+    if (!isApplicable) {
+      setCouponError("This coupon is not applicable to the selected service");
+      setAppliedCoupon(null);
+      return;
+    }
+
+    // Check minimum order value against subtotal (before discount)
+    const tempBreakdown = calculatePricing(serviceId!, quantity, specs, true, null);
+    if (match.minOrderValue && tempBreakdown.subtotal < match.minOrderValue) {
+      setCouponError(`Minimum order value of ₹${match.minOrderValue} required for this coupon`);
+      setAppliedCoupon(null);
+      return;
+    }
+
+    setAppliedCoupon(match);
+    setCouponSuccess(`Coupon "${codeUpper}" applied!`);
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponSuccess("");
+    setCouponError("");
+  };
+
   useEffect(() => {
     if (!serviceId) return;
-    const price = calculatePricing(serviceId, quantity, specs);
+    const price = calculatePricing(serviceId, quantity, specs, true, appliedCoupon);
     setPriceBreakdown(price);
-  }, [serviceId, quantity, specs]);
+  }, [serviceId, quantity, specs, appliedCoupon]);
 
   // Autocomplete if user is authenticated
   useEffect(() => {
@@ -527,6 +605,43 @@ function CheckoutContent() {
                     <span className="font-semibold italic text-emerald-500 truncate max-w-[140px]">{specs.customText}</span>
                   </div>
                 )}
+              </div>
+
+              {/* Coupon Code Input */}
+              <div className="border-t border-zinc-150/40 dark:border-zinc-850/60 pt-4 space-y-3">
+                <p className="font-bold text-zinc-400 uppercase tracking-widest text-[9px]">Apply Coupon Code</p>
+                {!appliedCoupon ? (
+                  <form onSubmit={handleApplyCoupon} className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="e.g. WELCOME10"
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                      className="flex-1 px-3 py-2 rounded-xl bg-white/[0.03] border border-white/5 text-xs text-zinc-200 placeholder:text-zinc-650 focus:outline-none focus:border-indigo-500/30 uppercase font-mono"
+                    />
+                    <button
+                      type="submit"
+                      className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition"
+                    >
+                      Apply
+                    </button>
+                  </form>
+                ) : (
+                  <div className="flex items-center justify-between bg-emerald-500/5 border border-emerald-500/10 rounded-xl px-3 py-2.5">
+                    <div className="flex flex-col">
+                      <span className="text-[10px] text-zinc-500 font-medium">Applied Code</span>
+                      <span className="text-xs font-bold text-emerald-400 font-mono">{appliedCoupon.code}</span>
+                    </div>
+                    <button
+                      onClick={handleRemoveCoupon}
+                      className="text-xs font-bold text-rose-450 hover:text-rose-400 transition px-2 py-1 rounded-lg hover:bg-rose-500/10"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+                {couponError && <p className="text-[10px] font-bold text-rose-400 mt-1">{couponError}</p>}
+                {couponSuccess && <p className="text-[10px] font-bold text-emerald-400 mt-1">{couponSuccess}</p>}
               </div>
 
               {/* Price Calculations */}
