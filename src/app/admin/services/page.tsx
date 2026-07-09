@@ -236,10 +236,15 @@ export default function AdminServicesPage() {
               className="rounded-2xl bg-white/[0.03] border border-white/5 p-5 hover:border-white/10 transition group"
             >
               <div className="flex items-start justify-between mb-3">
-                <div>
+                <div className="flex flex-wrap gap-1.5">
                   <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-500/10 text-indigo-400 uppercase">
                     {svc.category}
                   </span>
+                  {svc.pricingTiers && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 uppercase">
+                      Volume
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition">
                   <button
@@ -304,7 +309,10 @@ export default function AdminServicesPage() {
 
       {/* Add/Edit Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div 
+          className="fixed top-0 bottom-0 right-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          style={{ left: "var(--sidebar-width)" }}
+        >
           <div className="bg-[#0f0f18] border border-white/10 rounded-2xl w-full max-w-xl shadow-2xl max-h-[90vh] flex flex-col">
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between flex-shrink-0">
@@ -355,6 +363,11 @@ export default function AdminServicesPage() {
                     onChange={(e) => setFormData((p) => ({ ...p, basePrice: parseFloat(e.target.value) || 0 }))}
                     className="w-full px-3 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 text-sm text-zinc-200 focus:outline-none focus:border-indigo-500/30"
                   />
+                  {editingService?.pricingTiers && (
+                    <p className="text-[10px] text-indigo-400 mt-1">
+                      Note: This service uses dynamic tiered pricing. Customize tiers in the Pricing Manager.
+                    </p>
+                  )}
                 </div>
               </div>
 

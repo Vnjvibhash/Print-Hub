@@ -23,6 +23,13 @@ export interface UserProfile {
 
 export type ServiceCategory = 'printing' | 'business' | 'merchandise' | 'documents';
 
+export interface PricingTier {
+  minQty: number;
+  maxQty: number | null; // null means "and above"
+  singleSidePrice: number;
+  doubleSidePrice?: number; // only for services that support double-sided
+}
+
 export interface ServiceItem {
   id: string;
   name: string;
@@ -31,7 +38,10 @@ export interface ServiceItem {
   basePrice: number;
   features: string[];
   image: string;
+  pricingTiers?: PricingTier[];    // volume-based tiered pricing
+  supportsSides?: boolean;          // whether single/double side option applies
 }
+
 
 export interface SpecificationOptions {
   paperSize?: 'A4' | 'A3';

@@ -43,6 +43,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    setIsDesktop(window.innerWidth >= 1024);
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const sidebarWidth = isDesktop ? (collapsed ? "72px" : "260px") : "0px";
 
   // Auth guard
   useEffect(() => {
@@ -137,7 +149,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   );
 
   return (
-    <div className="min-h-screen flex bg-[#07070a] text-zinc-100">
+    <div 
+      className="min-h-screen flex bg-[#07070a] text-zinc-100"
+      style={{ ["--sidebar-width" as any]: sidebarWidth }}
+    >
       {/* Desktop Sidebar */}
       <aside
         className={`hidden lg:flex flex-col bg-[#0a0a12] border-r border-white/5 transition-all duration-300 ${

@@ -112,6 +112,100 @@ const DEFAULT_SERVICES: ServiceItem[] = [
   { id: "scanning", name: "Document Scanning & Archiving", category: "documents", description: "High-speed document scanning to PDF/JPEG and cloud storage backup.", basePrice: 5, features: ["Up to 600 DPI", "Multi-page PDF compilation", "OCR text searchable (optional)"], image: "/images/scan.jpg" },
   { id: "xerox", name: "High-volume Xerox", category: "documents", description: "Quick photocopy services for booklets, documents, and records.", basePrice: 1.5, features: ["High-speed replication", "70 GSM paper", "Bulk discount rates"], image: "/images/xerox.jpg" },
   { id: "resume-creation", name: "Professional Resume Writing", category: "documents", description: "Resume writing and formatting service with ATS-compliant designs.", basePrice: 200, features: ["ATS friendly styling", "PDF & Word deliverables", "Modern executive layout"], image: "/images/resume.jpg" },
+
+  // Specialty Sheet Printing (Volume-based tiered pricing)
+  {
+    id: "300gsm-print", name: "300 GSM Sheet Printing", category: "printing",
+    description: "Premium thick 300 GSM cardstock printing for certificates, invitations, and high-impact documents.",
+    basePrice: 30, features: ["300 GSM premium cardstock", "Single & double-sided options", "Volume discounts available"],
+    image: "/images/300gsm.jpg", supportsSides: true,
+    pricingTiers: [
+      { minQty: 1, maxQty: 1, singleSidePrice: 30, doubleSidePrice: 50 },
+      { minQty: 2, maxQty: 2, singleSidePrice: 25, doubleSidePrice: 40 },
+      { minQty: 3, maxQty: 5, singleSidePrice: 20, doubleSidePrice: 30 },
+      { minQty: 6, maxQty: 10, singleSidePrice: 15, doubleSidePrice: 20 },
+      { minQty: 11, maxQty: 25, singleSidePrice: 10, doubleSidePrice: 15 },
+      { minQty: 26, maxQty: null, singleSidePrice: 8, doubleSidePrice: 12 },
+    ]
+  },
+  {
+    id: "gumming-sheet", name: "Gumming Sheet Print", category: "printing",
+    description: "Self-adhesive gumming sticker sheet printing for labels, branding, and packaging.",
+    basePrice: 30, features: ["Self-adhesive backing", "Precision die-cut ready", "Vibrant color print"],
+    image: "/images/gumming.jpg", supportsSides: false,
+    pricingTiers: [
+      { minQty: 1, maxQty: 1, singleSidePrice: 30 },
+      { minQty: 2, maxQty: 2, singleSidePrice: 25 },
+      { minQty: 3, maxQty: 5, singleSidePrice: 20 },
+      { minQty: 6, maxQty: 10, singleSidePrice: 15 },
+      { minQty: 11, maxQty: 25, singleSidePrice: 10 },
+      { minQty: 26, maxQty: null, singleSidePrice: 8 },
+    ]
+  },
+  {
+    id: "vinyl-sheet", name: "Vinyl Sheet Print", category: "printing",
+    description: "Durable vinyl sticker sheet printing — waterproof and UV-resistant for outdoor applications.",
+    basePrice: 100, features: ["Waterproof vinyl material", "UV-resistant inks", "Indoor & outdoor use"],
+    image: "/images/vinyl.jpg", supportsSides: false,
+    pricingTiers: [
+      { minQty: 1, maxQty: 1, singleSidePrice: 100 },
+      { minQty: 2, maxQty: 2, singleSidePrice: 80 },
+      { minQty: 3, maxQty: 5, singleSidePrice: 50 },
+      { minQty: 6, maxQty: 10, singleSidePrice: 30 },
+      { minQty: 11, maxQty: 25, singleSidePrice: 20 },
+      { minQty: 26, maxQty: null, singleSidePrice: 15 },
+    ]
+  },
+  {
+    id: "rubber-vinyl-sheet", name: "Rubber Vinyl Sheet Print", category: "printing",
+    description: "Heavy-duty rubberized vinyl prints with textured finish for industrial and decorative use.",
+    basePrice: 100, features: ["Rubberized textured finish", "Extra durable material", "Scratch & abrasion resistant"],
+    image: "/images/rubber-vinyl.jpg", supportsSides: false,
+    pricingTiers: [
+      { minQty: 1, maxQty: 2, singleSidePrice: 100 },
+      { minQty: 3, maxQty: 5, singleSidePrice: 80 },
+      { minQty: 6, maxQty: 25, singleSidePrice: 50 },
+      { minQty: 26, maxQty: null, singleSidePrice: 40 },
+    ]
+  },
+  {
+    id: "transparent-vinyl-sheet", name: "Transparent Vinyl Sheet Print", category: "printing",
+    description: "Clear transparent vinyl sticker printing for glass, windows, and see-through branding.",
+    basePrice: 100, features: ["Crystal clear transparency", "High-tack adhesive", "Perfect for glass surfaces"],
+    image: "/images/transparent-vinyl.jpg", supportsSides: false,
+    pricingTiers: [
+      { minQty: 1, maxQty: 2, singleSidePrice: 100 },
+      { minQty: 3, maxQty: 5, singleSidePrice: 80 },
+      { minQty: 6, maxQty: 25, singleSidePrice: 50 },
+      { minQty: 26, maxQty: null, singleSidePrice: 40 },
+    ]
+  },
+  {
+    id: "glossy-photo-sheet", name: "Glossy Photo Sheet Print", category: "printing",
+    description: "High-gloss premium photo paper prints for vivid, gallery-quality photographs.",
+    basePrice: 100, features: ["High-gloss photo paper", "Vivid color reproduction", "Fade-resistant archival inks"],
+    image: "/images/glossy-photo.jpg", supportsSides: false,
+    pricingTiers: [
+      { minQty: 1, maxQty: 2, singleSidePrice: 100 },
+      { minQty: 3, maxQty: 5, singleSidePrice: 80 },
+      { minQty: 6, maxQty: 25, singleSidePrice: 50 },
+      { minQty: 26, maxQty: null, singleSidePrice: 40 },
+    ]
+  },
+  {
+    id: "half-cut", name: "Half Cut Service", category: "printing",
+    description: "Precision half-cut / kiss-cut service for stickers and labels — cut through the top layer only.",
+    basePrice: 10, features: ["Precision kiss-cutting", "Peel-and-stick ready", "Works with all sticker sheets"],
+    image: "/images/half-cut.jpg", supportsSides: false,
+    pricingTiers: [
+      { minQty: 1, maxQty: 1, singleSidePrice: 10 },
+      { minQty: 2, maxQty: 2, singleSidePrice: 8 },
+      { minQty: 3, maxQty: 5, singleSidePrice: 5 },
+      { minQty: 6, maxQty: 10, singleSidePrice: 3 },
+      { minQty: 11, maxQty: 25, singleSidePrice: 2 },
+      { minQty: 26, maxQty: null, singleSidePrice: 1 },
+    ]
+  },
 ];
 
 const DEFAULT_PRODUCTS: ProductItem[] = [
@@ -618,6 +712,24 @@ export const dbService = {
       const q = query(collection(firebaseDb!, collName));
       const querySnapshot = await getDocs(q);
       const results = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as T[];
+
+      // Fallback/Merge default services when Firestore is missing them (e.g. new services added in code)
+      if (collName === "services" && results.length > 0) {
+        const missing = (DEFAULT_SERVICES as unknown as T[]).filter(
+          (ds: any) => !results.some((cs: any) => cs.id === ds.id)
+        );
+        if (missing.length > 0) {
+          // Upload missing services in background
+          missing.forEach(async (item: any) => {
+            try {
+              await setDoc(doc(firebaseDb!, "services", item.id), item);
+            } catch (err) {
+              console.warn(`Failed to auto-seed service ${item.id} to Firestore:`, err);
+            }
+          });
+          return [...results, ...missing];
+        }
+      }
 
       // Fallback to hardcoded defaults when Firestore collection is empty
       // (e.g. database hasn't been seeded yet)

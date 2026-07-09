@@ -200,8 +200,13 @@ function ServicesContent() {
               className="glass-panel border-white/5 rounded-2xl p-6 flex flex-col justify-between hover:translate-y-[-2px] transition-all duration-300 group shadow-md"
             >
               <div>
-                <h3 className="text-lg font-bold text-zinc-900 dark:text-white group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
-                  {svc.name}
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-white group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors flex items-center justify-between gap-2">
+                  <span>{svc.name}</span>
+                  {svc.pricingTiers && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 uppercase tracking-wider flex-shrink-0">
+                      Volume Discount
+                    </span>
+                  )}
                 </h3>
                 <p className="mt-3 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed min-h-[50px]">
                   {svc.description}
@@ -218,11 +223,20 @@ function ServicesContent() {
 
               <div className="mt-6 border-t border-zinc-100 dark:border-zinc-900/50 pt-4 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium">Base Rate</span>
-                  <p className="text-base font-extrabold text-zinc-800 dark:text-zinc-100">
-                    ₹{svc.basePrice.toFixed(2)}
-                    {["printing", "documents"].includes(svc.category) && svc.id !== "resume-creation" && svc.id !== "passport-photo" ? <span className="text-xs text-zinc-400 font-normal">/pg</span> : ""}
-                  </p>
+                  <span className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium">
+                    {svc.pricingTiers ? "Price Range" : "Base Rate"}
+                  </span>
+                  {svc.pricingTiers ? (
+                    <p className="text-sm sm:text-base font-extrabold text-indigo-600 dark:text-indigo-400">
+                      ₹{Math.min(...svc.pricingTiers.map(t => t.singleSidePrice)).toFixed(2)} - ₹{Math.max(...svc.pricingTiers.map(t => t.singleSidePrice)).toFixed(2)}
+                      <span className="text-xs text-zinc-400 font-normal"> /sheet</span>
+                    </p>
+                  ) : (
+                    <p className="text-base font-extrabold text-zinc-800 dark:text-zinc-100">
+                      ₹{svc.basePrice.toFixed(2)}
+                      {["printing", "documents"].includes(svc.category) && svc.id !== "resume-creation" && svc.id !== "passport-photo" ? <span className="text-xs text-zinc-400 font-normal">/pg</span> : ""}
+                    </p>
+                  )}
                 </div>
                 
                 <button
@@ -293,32 +307,51 @@ function ServicesContent() {
                 </label>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Total Pages (If printing/scans/photocopy) */}
-                  {["printing", "documents"].includes(selectedService.category) && selectedService.id !== "resume-creation" && selectedService.id !== "passport-photo" && (
-                    <div>
-                      <label className="block text-[11px] font-semibold text-zinc-400 mb-1">Number of Pages in File</label>
+                  {selectedService.pricingTiers ? (
+                    <div className="col-span-2">
+                      <label className="block text-[11px] font-semibold text-zinc-400 mb-1">Quantity of Sheets Needed</label>
                       <input
                         type="number"
                         min="1"
                         value={pages}
-                        onChange={(e) => setPages(Math.max(1, Number(e.target.value)))}
-                        className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/5 text-xs focus:outline-none"
+                        onChange={(e) => {
+                          const val = Math.max(1, Number(e.target.value));
+                          setPages(val);
+                          setCopies(1); // Force copies to 1 so pages represents total sheet count
+                        }}
+                        className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/5 text-xs focus:outline-none focus:border-indigo-500/30 font-bold"
                       />
                     </div>
-                  )}
+                  ) : (
+                    <>
+                      {/* Total Pages (If printing/scans/photocopy) */}
+                      {["printing", "documents"].includes(selectedService.category) && selectedService.id !== "resume-creation" && selectedService.id !== "passport-photo" && (
+                        <div>
+                          <label className="block text-[11px] font-semibold text-zinc-400 mb-1">Number of Pages in File</label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={pages}
+                            onChange={(e) => setPages(Math.max(1, Number(e.target.value)))}
+                            className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/5 text-xs focus:outline-none"
+                          />
+                        </div>
+                      )}
 
-                  {/* Copies count (If printing/scans/photocopy) */}
-                  {["printing", "documents"].includes(selectedService.category) && selectedService.id !== "resume-creation" && selectedService.id !== "passport-photo" && (
-                    <div>
-                      <label className="block text-[11px] font-semibold text-zinc-400 mb-1">Number of Copies Needed</label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={copies}
-                        onChange={(e) => setCopies(Math.max(1, Number(e.target.value)))}
-                        className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/5 text-xs focus:outline-none"
-                      />
-                    </div>
+                      {/* Copies count (If printing/scans/photocopy) */}
+                      {["printing", "documents"].includes(selectedService.category) && selectedService.id !== "resume-creation" && selectedService.id !== "passport-photo" && (
+                        <div>
+                          <label className="block text-[11px] font-semibold text-zinc-400 mb-1">Number of Copies Needed</label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={copies}
+                            onChange={(e) => setCopies(Math.max(1, Number(e.target.value)))}
+                            className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/5 text-xs focus:outline-none"
+                          />
+                        </div>
+                      )}
+                    </>
                   )}
 
                   {/* General quantity selector for other flat rate services */}
@@ -333,10 +366,8 @@ function ServicesContent() {
                         className="w-full px-3 py-2 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/5 text-xs focus:outline-none"
                       />
                     </div>
-                  )}
-
-                  {/* Dimensions selection (Only standard prints) */}
-                  {selectedService.category === "printing" && !selectedService.id.includes("photo") && (
+                  )}                  {/* Dimensions selection (Only standard prints) */}
+                  {selectedService.category === "printing" && !selectedService.id.includes("photo") && !selectedService.pricingTiers && (
                     <div>
                       <label className="block text-[11px] font-semibold text-zinc-400 mb-1">Paper Dimensions</label>
                       <div className="flex bg-zinc-100 dark:bg-zinc-900 p-0.5 rounded-lg border border-zinc-200/40 dark:border-zinc-800/40">
@@ -361,7 +392,7 @@ function ServicesContent() {
                   )}
 
                   {/* Ink Mode selection (Only standard prints) */}
-                  {selectedService.category === "printing" && !selectedService.id.includes("photo") && !selectedService.id.includes("color") && !selectedService.id.includes("bw") && (
+                  {selectedService.category === "printing" && !selectedService.id.includes("photo") && !selectedService.id.includes("color") && !selectedService.id.includes("bw") && !selectedService.pricingTiers && (
                     <div>
                       <label className="block text-[11px] font-semibold text-zinc-400 mb-1">Color Format</label>
                       <div className="flex bg-zinc-100 dark:bg-zinc-900 p-0.5 rounded-lg border border-zinc-200/40 dark:border-zinc-800/40">
@@ -385,8 +416,8 @@ function ServicesContent() {
                     </div>
                   )}
 
-                  {/* Single vs Double Sided (Only prints) */}
-                  {selectedService.category === "printing" && !selectedService.id.includes("photo") && (
+                  {/* Single vs Double Sided (Only standard prints, or specialty prints that support sides) */}
+                  {((selectedService.supportsSides) || (selectedService.category === "printing" && !selectedService.id.includes("photo") && !selectedService.pricingTiers)) && (
                     <div>
                       <label className="block text-[11px] font-semibold text-zinc-400 mb-1">Sides Configuration</label>
                       <div className="flex bg-zinc-100 dark:bg-zinc-900 p-0.5 rounded-lg border border-zinc-200/40 dark:border-zinc-800/40">
@@ -411,7 +442,7 @@ function ServicesContent() {
                   )}
 
                   {/* Binding & Finishing selectors */}
-                  {selectedService.category === "printing" && !selectedService.id.includes("photo") && (
+                  {selectedService.category === "printing" && !selectedService.id.includes("photo") && !selectedService.pricingTiers && (
                     <div>
                       <label className="block text-[11px] font-semibold text-zinc-400 mb-1">Binding & Finishing</label>
                       <select
@@ -427,6 +458,58 @@ function ServicesContent() {
                   )}
                 </div>
               </div>
+
+              {/* Volume Pricing Tiers Table */}
+              {selectedService.pricingTiers && (
+                <div className="space-y-2.5">
+                  <label className="block text-xs font-bold text-zinc-400 uppercase tracking-wider">
+                    Volume Pricing Tiers
+                  </label>
+                  <div className="border border-zinc-200 dark:border-zinc-800 rounded-2xl overflow-hidden text-xs">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-zinc-50 dark:bg-zinc-900 border-b border-zinc-200 dark:border-zinc-800">
+                          <th className="p-3 font-bold text-zinc-500 dark:text-zinc-400">Sheet Count</th>
+                          <th className="p-3 font-bold text-zinc-500 dark:text-zinc-400 text-right">Single Side Price</th>
+                          {selectedService.supportsSides && (
+                            <th className="p-3 font-bold text-zinc-500 dark:text-zinc-400 text-right">Double Side Price</th>
+                          )}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-zinc-100 dark:divide-zinc-900">
+                        {selectedService.pricingTiers.map((tier: any, idx: number) => {
+                          const totalSheets = pages * copies;
+                          const isActive = totalSheets >= tier.minQty && (tier.maxQty === null || totalSheets <= tier.maxQty);
+                          return (
+                            <tr 
+                              key={idx} 
+                              className={`transition-colors ${
+                                isActive 
+                                  ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold" 
+                                  : "text-zinc-600 dark:text-zinc-400"
+                              }`}
+                            >
+                              <td className="p-3">
+                                {tier.maxQty === null 
+                                  ? `${tier.minQty}+ sheets` 
+                                  : tier.minQty === tier.maxQty 
+                                    ? `${tier.minQty} sheet` 
+                                    : `${tier.minQty} - ${tier.maxQty} sheets`}
+                              </td>
+                              <td className="p-3 text-right">₹{tier.singleSidePrice.toFixed(2)}</td>
+                              {selectedService.supportsSides && (
+                                <td className="p-3 text-right">
+                                  {tier.doubleSidePrice !== undefined ? `₹${tier.doubleSidePrice.toFixed(2)}` : "-"}
+                                </td>
+                              )}
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
               {/* Dynamic Live Price Summary */}
               {livePrice && (

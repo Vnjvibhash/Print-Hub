@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { DEFAULT_PRICING_CONFIG, getAdminRates } from "@/lib/pricing";
+import { DEFAULT_PRICING_CONFIG, getAdminRates, DEFAULT_TIERED_SERVICES } from "@/lib/pricing";
 import { dbService, isFirebaseEnabled } from "@/lib/firebase";
 import {
   Save,
@@ -70,16 +70,46 @@ const RATE_GROUPS = [
 
 export default function AdminPricingPage() {
   const [rates, setRates] = useState<Record<string, number>>({});
+  const [tieredPricing, setTieredPricing] = useState<Record<string, any[]>>({});
   const [saved, setSaved] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
     const currentRates = getAdminRates();
     setRates(currentRates);
+
+    // Load tiered pricing from storage or defaults
+    const loadedTiers: Record<string, any[]> = {};
+    const settingsRaw = localStorage.getItem("printhub_db_settings");
+    let parsedSettings: any = {};
+    if (settingsRaw) {
+      try { parsedSettings = JSON.parse(settingsRaw); } catch {}
+    }
+
+    Object.keys(DEFAULT_TIERED_SERVICES).forEach(id => {
+      if (parsedSettings.tieredPricing && parsedSettings.tieredPricing[id]) {
+        loadedTiers[id] = parsedSettings.tieredPricing[id];
+      } else {
+        loadedTiers[id] = JSON.parse(JSON.stringify(DEFAULT_TIERED_SERVICES[id])); // deep copy
+      }
+    });
+    setTieredPricing(loadedTiers);
   }, []);
 
   const updateRate = (key: string, value: number) => {
     setRates((prev) => ({ ...prev, [key]: value }));
+    setHasChanges(true);
+    setSaved(false);
+  };
+
+  const updateTierPrice = (serviceId: string, index: number, field: "singleSidePrice" | "doubleSidePrice", value: number) => {
+    setTieredPricing(prev => {
+      const copy = { ...prev };
+      const serviceTiers = [...copy[serviceId]];
+      serviceTiers[index] = { ...serviceTiers[index], [field]: value };
+      copy[serviceId] = serviceTiers;
+      return copy;
+    });
     setHasChanges(true);
     setSaved(false);
   };
@@ -91,7 +121,33 @@ export default function AdminPricingPage() {
       try { settings = JSON.parse(settingsRaw); } catch {}
     }
     settings.rates = rates;
+    settings.tieredPricing = tieredPricing;
     localStorage.setItem("printhub_db_settings", JSON.stringify(settings));
+
+    // Update cached services in localStorage so services list page picks up the pricingTiers
+    const storedServicesRaw = localStorage.getItem("printhub_db_services");
+    if (storedServicesRaw) {
+      try {
+        const services = JSON.parse(storedServicesRaw);
+        const updatedServices = services.map((s: any) => {
+          if (tieredPricing[s.id]) {
+            return { ...s, pricingTiers: tieredPricing[s.id] };
+          }
+          return s;
+        });
+        localStorage.setItem("printhub_db_services", JSON.stringify(updatedServices));
+
+        if (isFirebaseEnabled) {
+          for (const s of updatedServices) {
+            if (tieredPricing[s.id]) {
+              await dbService.updateDocument("services", s.id, { pricingTiers: tieredPricing[s.id] });
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to update services pricingTiers in localStorage:", err);
+      }
+    }
 
     if (isFirebaseEnabled) {
       try {
@@ -108,6 +164,7 @@ export default function AdminPricingPage() {
 
   const handleReset = () => {
     setRates({ ...DEFAULT_PRICING_CONFIG });
+    setTieredPricing(JSON.parse(JSON.stringify(DEFAULT_TIERED_SERVICES)));
     setHasChanges(true);
     setSaved(false);
   };
@@ -198,6 +255,93 @@ export default function AdminPricingPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      <hr className="border-white/5 my-8" />
+
+      {/* Tiered Pricing Editor */}
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-lg font-black text-white">Volume-Based Tiered Pricing</h2>
+          <p className="text-xs text-zinc-500 mt-1">Edit pricing tiers for specialty sheet prints. Per-sheet rates adjust dynamically based on volume.</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {Object.keys(tieredPricing).map((serviceId) => {
+            const serviceName = serviceId === "300gsm-print" ? "300 GSM Sheet Printing"
+              : serviceId === "gumming-sheet" ? "Gumming Sheet Print"
+              : serviceId === "vinyl-sheet" ? "Vinyl Sheet Print"
+              : serviceId === "rubber-vinyl-sheet" ? "Rubber Vinyl Sheet Print"
+              : serviceId === "transparent-vinyl-sheet" ? "Transparent Vinyl Sheet Print"
+              : serviceId === "glossy-photo-sheet" ? "Glossy Photo Sheet Print"
+              : serviceId === "half-cut" ? "Half Cut Service"
+              : serviceId;
+
+            const supportsDouble = serviceId === "300gsm-print";
+            const tiers = tieredPricing[serviceId] || [];
+
+            return (
+              <div key={serviceId} className="rounded-2xl bg-white/[0.03] border border-white/5 overflow-hidden">
+                <div className="px-5 py-3 border-b border-white/5 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4 text-indigo-400" />
+                    <h3 className="text-xs font-bold text-white uppercase tracking-wider">{serviceName}</h3>
+                  </div>
+                  <span className="text-[9px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    Tiered
+                  </span>
+                </div>
+                
+                <div className="p-4 overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-white/5 text-zinc-500 font-bold">
+                        <th className="pb-2">Sheet Range</th>
+                        <th className="pb-2 text-right">Single Side (₹)</th>
+                        {supportsDouble && <th className="pb-2 text-right">Double Side (₹)</th>}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/[0.02]">
+                      {tiers.map((tier, idx) => (
+                        <tr key={idx} className="hover:bg-white/[0.01]">
+                          <td className="py-2.5 font-medium text-zinc-400">
+                            {tier.maxQty === null 
+                              ? `${tier.minQty}+ sheets` 
+                              : tier.minQty === tier.maxQty 
+                                ? `${tier.minQty} sheet` 
+                                : `${tier.minQty} - ${tier.maxQty} sheets`}
+                          </td>
+                          <td className="py-2.5 text-right">
+                            <input
+                              type="number"
+                              min="0"
+                              step="0.5"
+                              value={tier.singleSidePrice}
+                              onChange={(e) => updateTierPrice(serviceId, idx, "singleSidePrice", parseFloat(e.target.value) || 0)}
+                              className="w-24 px-3 py-1.5 rounded-lg text-right text-xs font-bold bg-white/[0.03] border border-white/5 text-zinc-200 focus:outline-none focus:border-indigo-500/30"
+                            />
+                          </td>
+                          {supportsDouble && (
+                            <td className="py-2.5 text-right">
+                              <input
+                                type="number"
+                                min="0"
+                                step="0.5"
+                                value={tier.doubleSidePrice ?? 0}
+                                onChange={(e) => updateTierPrice(serviceId, idx, "doubleSidePrice", parseFloat(e.target.value) || 0)}
+                                className="w-24 px-3 py-1.5 rounded-lg text-right text-xs font-bold bg-white/[0.03] border border-white/5 text-zinc-200 focus:outline-none focus:border-indigo-500/30"
+                              />
+                            </td>
+                          )}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

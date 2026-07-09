@@ -3,10 +3,55 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { DEFAULT_PRICING_CONFIG, getAdminRates, getActiveOffers, getBestOfferForService } from "@/lib/pricing";
+import { DEFAULT_PRICING_CONFIG, getAdminRates, getActiveOffers, getBestOfferForService, getServiceTiers } from "@/lib/pricing";
 import { OfferRecord } from "@/types";
 import { DollarSign, Tag, Info, Check, ArrowRight, Sparkles, Percent } from "lucide-react";
 import Link from "next/link";
+
+const TIERED_SERVICES_LIST = [
+  {
+    id: "300gsm-print",
+    name: "300 GSM Sheet Printing",
+    description: "Premium thick cardstock for certificates, invitations, and photos.",
+    supportsSides: true,
+  },
+  {
+    id: "gumming-sheet",
+    name: "Gumming Sheet Printing",
+    description: "Self-adhesive sticker sheets for labels, branding, and packaging.",
+    supportsSides: false,
+  },
+  {
+    id: "vinyl-sheet",
+    name: "Vinyl Sheet Printing",
+    description: "Durable waterproof vinyl sticker sheets for outdoor/indoor use.",
+    supportsSides: false,
+  },
+  {
+    id: "rubber-vinyl-sheet",
+    name: "Rubber Vinyl Sheet Printing",
+    description: "Heavy-duty rubberized vinyl prints with a premium textured finish.",
+    supportsSides: false,
+  },
+  {
+    id: "transparent-vinyl-sheet",
+    name: "Transparent Vinyl Sheet Printing",
+    description: "Crystal clear vinyl stickers for glass and see-through branding.",
+    supportsSides: false,
+  },
+  {
+    id: "glossy-photo-sheet",
+    name: "Glossy Photo Sheet Printing",
+    description: "High-gloss photo paper sheets for gallery-quality photo prints.",
+    supportsSides: false,
+  },
+  {
+    id: "half-cut",
+    name: "Half Cut / Kiss Cut Service",
+    description: "Precision sticker sheet cutting through the top layer only.",
+    supportsSides: false,
+  },
+];
 
 // Map service keys used in pricing to their rate keys
 const SECTION_ITEMS: { title: string; items: { name: string; key: string; unit: string }[] }[] = [
@@ -188,6 +233,71 @@ export default function PricingPage() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Specialty Volume-Based Pricing Section */}
+        <div className="mb-16 space-y-6">
+          <div className="text-center max-w-3xl mx-auto mb-8">
+            <h2 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-white flex items-center justify-center gap-2">
+              <Sparkles className="h-6 w-6 text-indigo-500" />
+              Specialty Sheet Printing (Volume Discounts)
+            </h2>
+            <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+              The more sheets you print, the less you pay per sheet. Dynamic pricing is calculated instantly in the service calculator.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {TIERED_SERVICES_LIST.map((svc) => {
+              const tiers = getServiceTiers(svc.id) || [];
+              return (
+                <div key={svc.id} className="glass-panel border-white/5 rounded-3xl p-6 sm:p-8 space-y-4 shadow-lg flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-base font-bold text-zinc-950 dark:text-white flex items-center justify-between">
+                      <span>{svc.name}</span>
+                      <span className="text-[10px] font-bold text-indigo-500 bg-indigo-500/10 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                        Volume Pricing
+                      </span>
+                    </h3>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 mb-4">{svc.description}</p>
+                    
+                    <div className="border border-zinc-200/60 dark:border-zinc-850/80 rounded-2xl overflow-hidden text-xs">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-zinc-50 dark:bg-zinc-900/60 border-b border-zinc-200/60 dark:border-zinc-800/80">
+                            <th className="p-3 font-semibold text-zinc-500 dark:text-zinc-400">Sheet Count</th>
+                            <th className="p-3 font-semibold text-zinc-500 dark:text-zinc-400 text-right">Single Side</th>
+                            {svc.supportsSides && (
+                              <th className="p-3 font-semibold text-zinc-500 dark:text-zinc-400 text-right">Double Side</th>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-200/40 dark:divide-zinc-850/40">
+                          {tiers.map((tier: any, idx: number) => (
+                            <tr key={idx} className="text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50/50 dark:hover:bg-zinc-900/30 transition">
+                              <td className="p-3">
+                                {tier.maxQty === null 
+                                  ? `${tier.minQty}+ sheets` 
+                                  : tier.minQty === tier.maxQty 
+                                    ? `${tier.minQty} sheet` 
+                                    : `${tier.minQty} - ${tier.maxQty} sheets`}
+                              </td>
+                              <td className="p-3 text-right font-bold text-zinc-900 dark:text-white">₹{tier.singleSidePrice.toFixed(2)}</td>
+                              {svc.supportsSides && (
+                                <td className="p-3 text-right font-bold text-zinc-900 dark:text-white">
+                                  {tier.doubleSidePrice !== undefined ? `₹${tier.doubleSidePrice.toFixed(2)}` : "-"}
+                                </td>
+                              )}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Dynamic call to action */}
