@@ -89,7 +89,7 @@ export default function AdminOrdersPage() {
   const handleDownloadInvoice = (order: Order) => {
     const settingsRaw = localStorage.getItem("printhub_db_settings");
     let settings = {
-      companyName: "PrintHub Services Ltd.",
+      companyName: "SUVIR Printing",
       companyAddress: "102, Digital Towers, Sector 62, Noida, UP - 201301",
       gstNumber: "27AAAAA1111A1Z1",
       contactEmail: "support@printhub.com",

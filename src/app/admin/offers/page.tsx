@@ -52,7 +52,9 @@ export default function AdminOffersPage() {
         dbService.getCollection<OfferRecord>("offers"),
         dbService.getCollection<ServiceItem>("services"),
       ]);
-      setOffers(o.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+      const sortedOffers = o.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setOffers(sortedOffers);
+      localStorage.setItem("printhub_db_offers", JSON.stringify(sortedOffers));
       setServices(s);
     } catch (err) {
       console.error("Failed to load data:", err);
@@ -101,6 +103,7 @@ export default function AdminOffersPage() {
     setSaving(true);
     const codeUpper = formData.code.trim().toUpperCase();
     try {
+      let updatedOffers = [...offers];
       if (editingOffer) {
         const record: OfferRecord = {
           ...formData,
@@ -111,7 +114,8 @@ export default function AdminOffersPage() {
           endDate: new Date(formData.endDate).toISOString(),
         };
         await dbService.setDocument("offers", editingOffer.id, record);
-        setOffers((prev) => prev.map((o) => (o.id === editingOffer.id ? record : o)));
+        updatedOffers = offers.map((o) => (o.id === editingOffer.id ? record : o));
+        setOffers(updatedOffers);
       } else {
         const newId = `offer-${Date.now().toString(36)}`;
         const record: OfferRecord = {
@@ -123,8 +127,11 @@ export default function AdminOffersPage() {
           endDate: new Date(formData.endDate).toISOString(),
         };
         await dbService.setDocument("offers", newId, record);
-        setOffers((prev) => [record, ...prev]);
+        updatedOffers = [record, ...offers];
+        setOffers(updatedOffers);
       }
+      localStorage.setItem("printhub_db_offers", JSON.stringify(updatedOffers));
+      window.dispatchEvent(new CustomEvent("printhub_settings_updated"));
       setShowModal(false);
     } catch (err) {
       console.error("Failed to save offer:", err);
@@ -136,7 +143,10 @@ export default function AdminOffersPage() {
   const handleDelete = async (offerId: string) => {
     try {
       await dbService.deleteDocument("offers", offerId);
-      setOffers((prev) => prev.filter((o) => o.id !== offerId));
+      const updatedOffers = offers.filter((o) => o.id !== offerId);
+      setOffers(updatedOffers);
+      localStorage.setItem("printhub_db_offers", JSON.stringify(updatedOffers));
+      window.dispatchEvent(new CustomEvent("printhub_settings_updated"));
       setDeleteConfirm(null);
     } catch (err) {
       console.error("Failed to delete offer:", err);
@@ -146,7 +156,10 @@ export default function AdminOffersPage() {
   const toggleOfferActive = async (offer: OfferRecord) => {
     const updated = { ...offer, isActive: !offer.isActive };
     await dbService.setDocument("offers", offer.id, updated);
-    setOffers((prev) => prev.map((o) => (o.id === offer.id ? updated : o)));
+    const updatedOffers = offers.map((o) => (o.id === offer.id ? updated : o));
+    setOffers(updatedOffers);
+    localStorage.setItem("printhub_db_offers", JSON.stringify(updatedOffers));
+    window.dispatchEvent(new CustomEvent("printhub_settings_updated"));
   };
 
   const toggleServiceSelection = (serviceId: string) => {

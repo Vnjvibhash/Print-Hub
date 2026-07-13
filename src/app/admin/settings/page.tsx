@@ -25,7 +25,7 @@ interface SettingsData {
 }
 
 const DEFAULT_SETTINGS: SettingsData = {
-  companyName: "PrintHub Services Ltd.",
+  companyName: "SUVIR Printing",
   companyAddress: "102, Digital Towers, Sector 62, Noida, UP - 201301",
   gstNumber: "27AAAAA1111A1Z1",
   contactEmail: "support@printhub.com",
@@ -126,7 +126,7 @@ export default function AdminSettingsPage() {
       label: "Company Name",
       icon: Building2,
       type: "text",
-      placeholder: "PrintHub Services Ltd.",
+      placeholder: "SUVIR Printing",
       description: "Appears on invoices, receipts, and email communications.",
     },
     {

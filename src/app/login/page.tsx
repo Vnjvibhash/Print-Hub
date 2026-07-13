@@ -97,10 +97,10 @@ function LoginContent() {
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center space-x-2 text-indigo-600 dark:text-indigo-400 font-black text-2xl">
             <Printer className="h-7 w-7" />
-            <span>PrintHub</span>
+            <span>SUVIR Printing</span>
           </div>
           <h1 className="text-xl font-extrabold text-zinc-950 dark:text-white">
-            {isSignUpMode ? "Create your account" : "Sign in to PrintHub"}
+            {isSignUpMode ? "Create your account" : "Sign in to SUVIR Printing"}
           </h1>
           <p className="text-xs text-zinc-400">
             {isSignUpMode ? "Get access to order history and saved profiles" : "Welcome back. Log in using credentials."}

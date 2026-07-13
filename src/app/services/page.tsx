@@ -5,8 +5,8 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import FileUploader from "@/components/upload/FileUploader";
 import { dbService } from "@/lib/firebase";
-import { calculatePricing } from "@/lib/pricing";
-import { ServiceItem, ServiceCategory, SpecificationOptions, PriceBreakdown } from "@/types";
+import { calculatePricing, loadPricingFromFirestore, loadOffersFromFirestore, getActiveOffers, getBestOfferForService } from "@/lib/pricing";
+import { ServiceItem, ServiceCategory, SpecificationOptions, PriceBreakdown, OfferRecord } from "@/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import { 
   Printer, 
@@ -55,20 +55,35 @@ function ServicesContent() {
 
   // Live Pricing
   const [livePrice, setLivePrice] = useState<PriceBreakdown | null>(null);
+  // Active Offers from Firestore
+  const [activeOffers, setActiveOffers] = useState<OfferRecord[]>([]);
 
-  // Fetch Services
+  // Fetch Services + pricing/offers from Firestore
   useEffect(() => {
-    async function loadServices() {
+    async function loadAll() {
       try {
+        // Pull latest admin pricing + offers from Firestore into localStorage
+        await Promise.all([loadPricingFromFirestore(), loadOffersFromFirestore()]);
+        // Now load services (they may have updated pricingTiers)
         const svcs = await dbService.getCollection<ServiceItem>("services");
         setServices(svcs);
+        setActiveOffers(getActiveOffers());
       } catch (err) {
         console.error("Failed to load services:", err);
       } finally {
         setLoading(false);
       }
     }
-    loadServices();
+    loadAll();
+
+    // Re-read offers when admin changes pricing/offers in another tab
+    const onSettingsUpdate = () => setActiveOffers(getActiveOffers());
+    window.addEventListener("printhub_settings_updated", onSettingsUpdate);
+    window.addEventListener("storage", onSettingsUpdate);
+    return () => {
+      window.removeEventListener("printhub_settings_updated", onSettingsUpdate);
+      window.removeEventListener("storage", onSettingsUpdate);
+    };
   }, []);
 
   // Update live pricing calculation
@@ -157,7 +172,7 @@ function ServicesContent() {
     <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full page-fade-in">
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto mb-12">
-        <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">PrintHub Service Center</h1>
+        <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">SUVIR Printing Service Center</h1>
         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
           From fast high-volume black & white documents to custom visiting cards, typing assistance, and scanning.
         </p>
@@ -202,11 +217,25 @@ function ServicesContent() {
               <div>
                 <h3 className="text-lg font-bold text-zinc-900 dark:text-white group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors flex items-center justify-between gap-2">
                   <span>{svc.name}</span>
-                  {svc.pricingTiers && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 uppercase tracking-wider flex-shrink-0">
-                      Volume Discount
-                    </span>
-                  )}
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    {svc.pricingTiers && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 uppercase tracking-wider">
+                        Volume Discount
+                      </span>
+                    )}
+                    {/* Offer badge — shown when an active offer applies to this service */}
+                    {(() => {
+                      const best = getBestOfferForService(svc.id);
+                      if (!best) return null;
+                      return (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 uppercase tracking-wider border border-emerald-500/20">
+                          {best.discountType === "percentage"
+                            ? `${best.discountValue}% OFF`
+                            : `₹${best.discountValue} OFF`}
+                        </span>
+                      );
+                    })()}
+                  </div>
                 </h3>
                 <p className="mt-3 text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed min-h-[50px]">
                   {svc.description}

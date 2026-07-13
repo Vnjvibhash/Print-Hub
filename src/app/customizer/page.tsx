@@ -33,7 +33,7 @@ function CustomizerContent() {
       <div className="text-center max-w-3xl mx-auto mb-12">
         <span className="inline-flex items-center px-3 py-1 rounded-full border border-indigo-500/20 bg-indigo-500/5 text-indigo-600 dark:text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
           <Sparkles className="w-3.5 h-3.5 mr-1" />
-          PrintHub Designer Studio
+          SUVIR Printing Designer Studio
         </span>
         <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Custom Merchandise Canvas</h1>
         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">

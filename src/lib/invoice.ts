@@ -24,7 +24,7 @@ export function generateInvoicePDF(order: Order, companySettings: {
   doc.setFont("Helvetica", "bold");
   doc.setFontSize(22);
   doc.setTextColor(79, 70, 229); // Indigo brand color
-  doc.text("PrintHub Services", 14, 20);
+  doc.text("SUVIR Printing", 14, 20);
 
   doc.setFont("Helvetica", "normal");
   doc.setFontSize(9);

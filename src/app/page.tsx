@@ -6,7 +6,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import HeroCarousel from "@/components/home/HeroCarousel";
 import { motion } from "framer-motion";
-import { calculatePricing } from "@/lib/pricing";
+import { calculatePricing, loadPricingFromFirestore } from "@/lib/pricing";
 import { 
   Upload, 
   ShoppingBag, 
@@ -64,9 +64,21 @@ export default function Home() {
   const [settingsVersion, setSettingsVersion] = useState(0);
 
   useEffect(() => {
-    setIsHydrated(true);
-
     const triggerUpdate = () => setSettingsVersion((prev) => prev + 1);
+
+    const initEstimator = async () => {
+      try {
+        await loadPricingFromFirestore();
+      } catch (err) {
+        console.error("Failed to load pricing from Firestore:", err);
+      } finally {
+        setIsHydrated(true);
+        triggerUpdate();
+      }
+    };
+
+    initEstimator();
+
     window.addEventListener("printhub_settings_updated", triggerUpdate);
     window.addEventListener("storage", triggerUpdate);
 

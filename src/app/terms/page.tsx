@@ -25,7 +25,7 @@ export default function TermsPage() {
               <span className="text-indigo-500 mr-2">1.</span> Acceptance of Terms
             </h2>
             <p>
-              By accessing and using the PrintHub Services platform, you agree to comply with and be bound by these Terms and Conditions. If you do not agree to these terms, please do not upload files, utilize our customizer, or make checkouts.
+              By accessing and using the SUVIR Printing platform, you agree to comply with and be bound by these Terms and Conditions. If you do not agree to these terms, please do not upload files, utilize our customizer, or make checkouts.
             </p>
           </section>
 
@@ -34,7 +34,7 @@ export default function TermsPage() {
               <span className="text-indigo-500 mr-2">2.</span> File Content & Intellectual Property
             </h2>
             <p>
-              You maintain ownership of all text, data, photographs, and vector graphics uploaded to PrintHub. However, you represent and warrant that:
+              You maintain ownership of all text, data, photographs, and vector graphics uploaded to SUVIR Printing. However, you represent and warrant that:
             </p>
             <ul className="list-disc pl-5 space-y-1.5 text-zinc-500">
               <li>You own or have the explicit license to use the files submitted for binding, merchandise, or photocopying.</li>

@@ -184,7 +184,7 @@ function CheckoutContent() {
   // Generate UPI QR Code URL when payment method is UPI
   useEffect(() => {
     if (paymentMethod === "upi" && priceBreakdown) {
-      const upiString = `upi://pay?pa=pay.printhub@okaxis&pn=PrintHub%20Services&am=${priceBreakdown.total}&cu=INR&tn=PRINTHUB-ORDER`;
+      const upiString = `upi://pay?pa=pay.printhub@okaxis&pn=SUVIR%20Printing&am=${priceBreakdown.total}&cu=INR&tn=SUVIR-ORDER`;
       QRCode.toDataURL(upiString, { width: 200, margin: 1 })
         .then((url) => setUpiQrDataUrl(url))
         .catch((err) => console.error("QR generation failed:", err));
@@ -259,7 +259,7 @@ function CheckoutContent() {
 
       // 3. Generate and Save PDF invoice record
       const pdf = generateInvoicePDF(orderData, {
-        companyName: "PrintHub Services Ltd.",
+        companyName: "SUVIR Printing",
         companyAddress: "102, Digital Towers, Sector 62, Noida, UP - 201301",
         gstNumber: "27AAAAA1111A1Z1",
         contactEmail: "support@printhub.com"
@@ -297,7 +297,7 @@ function CheckoutContent() {
   const downloadPDFInvoice = () => {
     if (!completedOrder) return;
     const pdf = generateInvoicePDF(completedOrder, {
-      companyName: "PrintHub Services Ltd.",
+      companyName: "SUVIR Printing",
       companyAddress: "102, Digital Towers, Sector 62, Noida, UP - 201301",
       gstNumber: "27AAAAA1111A1Z1",
       contactEmail: "support@printhub.com"

@@ -35,7 +35,7 @@ export default function Footer() {
           <div className="space-y-4">
             <div className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 font-bold text-xl">
               <Printer className="h-6 w-6" />
-              <span>Print<span className="text-zinc-900 dark:text-white">Hub</span></span>
+              <span>SUVIR<span className="text-zinc-900 dark:text-white"> Printing</span></span>
             </div>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
               Your one-stop web platform for digital printing, bulk business cards, thesis layout bindings, and customized photo gifts.
@@ -107,7 +107,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-zinc-200 dark:border-zinc-800/80 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-zinc-400 space-y-4 md:space-y-0">
           <div>
-            &copy; {currentYear} PrintHub Services. All rights reserved.
+            &copy; {currentYear} SUVIR Printing. All rights reserved.
           </div>
           <div className="flex space-x-6">
             {legalLinks.map((link) => (

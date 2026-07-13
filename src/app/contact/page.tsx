@@ -79,7 +79,7 @@ export default function ContactPage() {
               <div className="absolute inset-0 bg-zinc-950/60 flex items-center justify-center text-center p-4">
                 <div className="space-y-1">
                   <MapPin className="h-8 w-8 text-indigo-400 mx-auto animate-bounce" />
-                  <p className="text-xs text-white font-bold">PrintHub Noida Center</p>
+                  <p className="text-xs text-white font-bold">SUVIR Printing Noida Center</p>
                   <p className="text-[10px] text-zinc-400">Sector 62, Metro Station Exit 2</p>
                 </div>
               </div>

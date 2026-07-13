@@ -58,7 +58,7 @@ export default function CustomerDashboard() {
 
   const handleDownloadInvoice = (order: Order) => {
     const pdf = generateInvoicePDF(order, {
-      companyName: "PrintHub Services Ltd.",
+      companyName: "SUVIR Printing",
       companyAddress: "102, Digital Towers, Sector 62, Noida, UP - 201301",
       gstNumber: "27AAAAA1111A1Z1",
       contactEmail: "support@printhub.com"

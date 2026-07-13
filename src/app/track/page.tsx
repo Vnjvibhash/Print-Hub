@@ -70,7 +70,7 @@ function TrackContent() {
       <div className="text-center max-w-2xl mx-auto mb-10">
         <h1 className="text-3xl font-extrabold tracking-tight">Track Your Order</h1>
         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-          Enter your PrintHub Order ID (e.g. PH-9821) to check its live manufacturing status.
+          Enter your SUVIR Printing Order ID (e.g. PH-9821) to check its live manufacturing status.
         </p>
 
         {/* Input Form */}

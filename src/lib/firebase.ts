@@ -33,6 +33,7 @@ import {
   type FirebaseStorage
 } from "firebase/storage";
 import { UserProfile, ServiceItem, ProductItem, Order, NotificationRecord, CarouselSlide, OfferRecord } from "@/types";
+import { DEFAULT_TIERED_SERVICES } from "@/lib/pricing";
 import seedData from "@/data/printhub-seed-data.json";
 
 // 1. Firebase Configuration Detection
@@ -276,7 +277,7 @@ const initLocalDatabase = () => {
   if (!getLocalData("settings")) {
     setLocalData("settings", {
       gstNumber: "27AAAAA1111A1Z1",
-      companyName: "PrintHub Services Ltd.",
+      companyName: "SUVIR Printing",
       companyAddress: "102, Digital Towers, Sector 62, Noida, UP - 201301",
       taxRate: 18,
       upiId: "pay.printhub@okaxis",
@@ -1127,12 +1128,49 @@ export const dbService = {
     });
     tasks.push(dbService.setDocument("settings", "app-settings", {
       gstNumber: "27AAAAA1111A1Z1",
-      companyName: "PrintHub Services Ltd.",
+      companyName: "SUVIR Printing",
       companyAddress: "102, Digital Towers, Sector 62, Noida, UP - 201301",
       taxRate: 18,
       upiId: "pay.printhub@okaxis",
       contactEmail: "support@printhub.com",
+      tieredPricing: DEFAULT_TIERED_SERVICES,
     }));
+
+    // Seed default offers
+    const defaultOffers: OfferRecord[] = [
+      {
+        id: "offer-welcome10",
+        code: "WELCOME10",
+        name: "Welcome Discount",
+        description: "10% off on all services for new customers.",
+        discountType: "percentage",
+        discountValue: 10,
+        applicableServiceIds: [],
+        minOrderValue: 0,
+        startDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + 90 * 86400000).toISOString(),
+        isActive: true,
+        createdAt: new Date().toISOString(),
+      },
+      {
+        id: "offer-bulk50",
+        code: "BULK50",
+        name: "Bulk Print Offer",
+        description: "₹50 flat off on orders above ₹500.",
+        discountType: "flat",
+        discountValue: 50,
+        applicableServiceIds: ["a4-bw", "a4-color", "a3-bw", "a3-color", "visiting-cards", "brochures"],
+        minOrderValue: 500,
+        startDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + 60 * 86400000).toISOString(),
+        isActive: true,
+        createdAt: new Date().toISOString(),
+      },
+    ];
+    defaultOffers.forEach((offer) => {
+      tasks.push(dbService.setDocument("offers", offer.id, offer));
+    });
+
     defaultOrders.forEach((order) => {
       tasks.push(dbService.setDocument("orders", order.id, order));
     });

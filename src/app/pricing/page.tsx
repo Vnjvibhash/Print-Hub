@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { DEFAULT_PRICING_CONFIG, getAdminRates, getActiveOffers, getBestOfferForService, getServiceTiers } from "@/lib/pricing";
+import { DEFAULT_PRICING_CONFIG, getAdminRates, getActiveOffers, getBestOfferForService, getServiceTiers, loadPricingFromFirestore, loadOffersFromFirestore } from "@/lib/pricing";
 import { OfferRecord } from "@/types";
 import { DollarSign, Tag, Info, Check, ArrowRight, Sparkles, Percent } from "lucide-react";
 import Link from "next/link";
@@ -120,7 +120,18 @@ export default function PricingPage() {
       setRates(getAdminRates());
       setActiveOffers(getActiveOffers());
     };
-    loadRates();
+
+    const loadAllFromDb = async () => {
+      try {
+        await Promise.all([loadPricingFromFirestore(), loadOffersFromFirestore()]);
+      } catch (err) {
+        console.error("Failed to load pricing/offers from Firestore:", err);
+      } finally {
+        loadRates();
+      }
+    };
+
+    loadAllFromDb();
 
     window.addEventListener("printhub_settings_updated", loadRates);
     window.addEventListener("storage", loadRates);

@@ -19,9 +19,9 @@ export default function AboutPage() {
       
       <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 page-fade-in w-full">
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">About PrintHub Services</h1>
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">About SUVIR Printing</h1>
           <p className="mt-4 text-zinc-500 dark:text-zinc-400 leading-relaxed text-sm sm:text-base">
-            Founded in 2026, PrintHub Services was established to modernize local photocopying and merchandise custom gifts. We eliminate queue delays and hidden charges with our self-service upload portal and transparent dynamic pricing engine.
+            Founded in 2026, SUVIR Printing was established to modernize local photocopying and merchandise custom gifts. We eliminate queue delays and hidden charges with our self-service upload portal and transparent dynamic pricing engine.
           </p>
         </div>
 

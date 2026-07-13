@@ -494,3 +494,49 @@ export function calculatePricing(
   };
 }
 
+// ── Async Firestore loaders ─────────────────────────────────────────────────
+// These pull live data from Firestore and write to localStorage so all
+// subsequent synchronous calls to getAdminRates / getServiceTiers /
+// getActiveOffers automatically see up-to-date values.
+
+/**
+ * Load admin-saved pricing (tieredPricing + rates + taxRate) from Firestore
+ * into localStorage so getAdminRates() / getServiceTiers() return live data.
+ * Safe to call on every page mount; resolves instantly when Firebase is off.
+ */
+export async function loadPricingFromFirestore(): Promise<void> {
+  if (typeof window === "undefined") return;
+  try {
+    const { isFirebaseEnabled: fbe, dbService: db } = await import("@/lib/firebase");
+    if (!fbe) return;
+    const snap = await db.getDocument<Record<string, any>>("settings", "app-settings");
+    if (!snap) return;
+
+    // Merge into localStorage settings
+    const raw = localStorage.getItem("printhub_db_settings");
+    let existing: any = {};
+    try { if (raw) existing = JSON.parse(raw); } catch {}
+
+    const merged = { ...existing, ...snap };
+    localStorage.setItem("printhub_db_settings", JSON.stringify(merged));
+  } catch (err) {
+    console.warn("[pricing] loadPricingFromFirestore failed:", err);
+  }
+}
+
+/**
+ * Load all offers from Firestore into localStorage (`printhub_db_offers`)
+ * so getActiveOffers() returns Firestore-backed data.
+ * Safe to call on every page mount.
+ */
+export async function loadOffersFromFirestore(): Promise<void> {
+  if (typeof window === "undefined") return;
+  try {
+    const { isFirebaseEnabled: fbe, dbService: db } = await import("@/lib/firebase");
+    if (!fbe) return;
+    const offers = await db.getCollection<OfferRecord>("offers");
+    localStorage.setItem("printhub_db_offers", JSON.stringify(offers));
+  } catch (err) {
+    console.warn("[pricing] loadOffersFromFirestore failed:", err);
+  }
+}

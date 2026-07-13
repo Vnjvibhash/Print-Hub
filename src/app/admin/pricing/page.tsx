@@ -176,6 +176,9 @@ export default function AdminPricingPage() {
 
     setSaved(true);
     setHasChanges(false);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("printhub_settings_updated"));
+    }
     setTimeout(() => setSaved(false), 3000);
   };
 

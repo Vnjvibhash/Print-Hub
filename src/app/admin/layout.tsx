@@ -88,7 +88,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
         {!collapsed && (
           <div>
-            <h1 className="text-sm font-bold text-white">PrintHub</h1>
+            <h1 className="text-sm font-bold text-white">SUVIR Printing</h1>
             <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold">Admin Panel</p>
           </div>
         )}

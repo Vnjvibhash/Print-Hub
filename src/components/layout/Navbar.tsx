@@ -167,7 +167,7 @@ export default function Navbar() {
           <div className="flex-shrink-0 flex items-center">
             <Link href="/" className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 font-bold text-xl tracking-tight">
               <Printer className="h-6 w-6 animate-pulse-slow" />
-              <span>Print<span className="text-[#0f0f15] dark:text-white">Hub</span></span>
+              <span>SUVIR<span className="text-[#0f0f15] dark:text-white"> Printing</span></span>
             </Link>
           </div>
 
