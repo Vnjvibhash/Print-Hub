@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import HeroCarousel from "@/components/home/HeroCarousel";
 import { motion } from "framer-motion";
 import { calculatePricing, loadPricingFromFirestore } from "@/lib/pricing";
+import { dbService } from "@/lib/firebase";
+import { ReviewRecord } from "@/types";
 import { 
   Upload, 
   ShoppingBag, 
@@ -20,6 +22,75 @@ import {
   Sparkles,
   Zap
 } from "lucide-react";
+
+const LOCAL_TESTIMONIALS: ReviewRecord[] = [
+  {
+    id: "local-rev-1",
+    customerId: "local-user-1",
+    customerName: "Rahul Verma",
+    customerRole: "PhD Scholar",
+    rating: 5,
+    comment: "Printed my complete doctoral thesis here. The spiral binding is sturdy and A4 color page quality is stellar. Finished in less than 2 hours!",
+    serviceId: "a4-color",
+    approved: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "local-rev-2",
+    customerId: "local-user-2",
+    customerName: "Sneha Kapoor",
+    customerRole: "Brand Manager",
+    rating: 5,
+    comment: "Ordered 500 visiting cards and customized hoodies for our startup crew. Colors match our branding exactly and prints are very durable.",
+    serviceId: "visiting-cards",
+    approved: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "local-rev-3",
+    customerId: "local-user-3",
+    customerName: "Amit Joshi",
+    customerRole: "Gift Shop Owner",
+    rating: 5,
+    comment: "The Magic Mugs are a bestseller. The transition is smooth and prints look premium. The bulk billing tools make tracking payments a breeze.",
+    serviceId: "mug-print",
+    approved: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "local-rev-4",
+    customerId: "local-user-4",
+    customerName: "Priya Sharma",
+    customerRole: "Delhi University Student",
+    rating: 5,
+    comment: "Got my semester study guides printed and spiral bound. Extremely cost-effective for students, and fast delivery too!",
+    serviceId: "a4-bw",
+    approved: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "local-rev-5",
+    customerId: "local-user-5",
+    customerName: "Vikram Malhotra",
+    customerRole: "Tech Startup Founder",
+    rating: 5,
+    comment: "Ordered custom hoodies and letterheads for our team. The print quality is premium and customer support was very helpful.",
+    serviceId: "hoodie-print",
+    approved: true,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: "local-rev-6",
+    customerId: "local-user-6",
+    customerName: "Ananya Patel",
+    customerRole: "Freelance Designer",
+    rating: 4,
+    comment: "Excellent sticker sheet and vinyl printing. Clean cuts and vivid colors. Perfect for packaging labels.",
+    serviceId: "vinyl-sheet",
+    approved: true,
+    createdAt: new Date().toISOString(),
+  },
+];
 
 export default function Home() {
   const containerVariants = {
@@ -49,11 +120,16 @@ export default function Home() {
     { number: "04", title: "Track & Collect", desc: "Get real-time SMS/email status alerts as your order progresses.", icon: CheckCircle }
   ];
 
-  const testimonials = [
-    { name: "Rahul Verma", role: "PhD Scholar", review: "Printed my complete doctoral thesis here. The spiral binding is sturdy and A4 color page quality is stellar. Finished in less than 2 hours!", rating: 5 },
-    { name: "Sneha Kapoor", role: "Brand Manager", review: "Ordered 500 visiting cards and customized hoodies for our startup crew. Colors match our branding exactly and prints are very durable.", rating: 5 },
-    { name: "Amit Joshi", role: "Gift Shop Owner", review: "The Magic Mugs are a bestseller. The transition is smooth and prints look premium. The bulk billing tools make tracking payments a breeze.", rating: 5 }
-  ];
+  const [reviews, setReviews] = useState<ReviewRecord[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+
+  // Review Form state
+  const [reviewName, setReviewName] = useState("");
+  const [reviewRole, setReviewRole] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewSuccess, setReviewSuccess] = useState(false);
 
   const [paperSize, setPaperSize] = useState<"A4" | "A3">("A4");
   const [colorMode, setColorMode] = useState<"bw" | "color">("bw");
@@ -63,14 +139,28 @@ export default function Home() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [settingsVersion, setSettingsVersion] = useState(0);
 
+  const fetchReviews = async () => {
+    try {
+      const data = await dbService.getCollection<ReviewRecord>("reviews");
+      const activeReviews = data.filter((r) => r.approved !== false);
+      const sorted = activeReviews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setReviews(sorted.length > 0 ? sorted : LOCAL_TESTIMONIALS);
+    } catch (err) {
+      console.error("Failed to load reviews:", err);
+      setReviews(LOCAL_TESTIMONIALS);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
   useEffect(() => {
     const triggerUpdate = () => setSettingsVersion((prev) => prev + 1);
 
     const initEstimator = async () => {
       try {
-        await loadPricingFromFirestore();
+        await Promise.all([loadPricingFromFirestore(), fetchReviews()]);
       } catch (err) {
-        console.error("Failed to load pricing from Firestore:", err);
+        console.error("Failed to load layout data:", err);
       } finally {
         setIsHydrated(true);
         triggerUpdate();
@@ -87,6 +177,38 @@ export default function Home() {
       window.removeEventListener("storage", triggerUpdate);
     };
   }, []);
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewName.trim() || !reviewComment.trim()) return;
+    setSubmittingReview(true);
+    try {
+      const newId = `rev-${Date.now().toString(36)}`;
+      const record: ReviewRecord = {
+        id: newId,
+        customerId: "anonymous",
+        customerName: reviewName.trim(),
+        customerRole: reviewRole.trim() || "Customer",
+        rating: reviewRating,
+        comment: reviewComment.trim(),
+        serviceId: "general",
+        approved: true, // starts approved so it displays instantly on Home screen
+        createdAt: new Date().toISOString(),
+      };
+      await dbService.setDocument("reviews", newId, record);
+      setReviews((prev) => [record, ...prev]);
+      setReviewSuccess(true);
+      setReviewName("");
+      setReviewRole("");
+      setReviewRating(5);
+      setReviewComment("");
+      setTimeout(() => setReviewSuccess(false), 5000);
+    } catch (err) {
+      console.error("Failed to submit review:", err);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
 
   const estimatorServiceId = useMemo(() => {
     const sizeKey = paperSize.toLowerCase();
@@ -385,28 +507,118 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((test, idx) => (
-            <div key={idx} className="glass-panel border-white/5 rounded-2xl p-6 relative">
-              <div className="flex items-center space-x-1 text-amber-500">
-                {[...Array(test.rating)].map((_, i) => (
-                  <Star key={i} className="h-4 w-4 fill-current" />
-                ))}
+        {reviewsLoading ? (
+          <div className="mt-14 flex gap-6 overflow-hidden">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="h-48 min-w-[320px] rounded-2xl bg-zinc-100 dark:bg-zinc-950/20 animate-pulse border border-zinc-200/50 dark:border-zinc-800" />
+            ))}
+          </div>
+        ) : reviews.length === 0 ? (
+          <div className="mt-14 glass-panel border-white/5 rounded-2xl p-12 text-center text-zinc-500">
+            No customer reviews yet. Be the first to write one below!
+          </div>
+        ) : (
+          <div className="mt-14 flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide" style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
+            {reviews.map((test) => (
+              <div key={test.id} className="glass-panel border-white/5 rounded-2xl p-6 relative min-w-[320px] max-w-[360px] flex-shrink-0 snap-start">
+                <div className="flex items-center space-x-1 text-amber-500">
+                  {[...Array(test.rating)].map((_, i) => (
+                    <Star key={i} className="h-4 w-4 fill-current" />
+                  ))}
+                </div>
+                <p className="mt-4 text-sm sm:text-base text-zinc-600 dark:text-zinc-300 italic leading-relaxed">
+                  "{test.comment.length > 139 ? `${test.comment.substring(0, 139)}...` : test.comment}"
+                </p>
+                <div className="mt-6 border-t border-zinc-100 dark:border-zinc-900/50 pt-4 flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-full bg-indigo-600/10 flex items-center justify-center font-bold text-indigo-600 text-sm flex-shrink-0">
+                    {test.customerName.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-sm font-bold text-zinc-900 dark:text-white truncate">{test.customerName}</h4>
+                    <p className="text-xs text-zinc-400 truncate">{test.customerRole || "Customer"}</p>
+                  </div>
+                </div>
               </div>
-              <p className="mt-4 text-sm sm:text-base text-zinc-600 dark:text-zinc-300 italic leading-relaxed">
-                "{test.review}"
-              </p>
-              <div className="mt-6 border-t border-zinc-100 dark:border-zinc-900/50 pt-4 flex items-center space-x-3">
-                <div className="w-10 h-10 rounded-full bg-indigo-600/10 flex items-center justify-center font-bold text-indigo-600 text-sm">
-                  {test.name.charAt(0)}
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-zinc-900 dark:text-white">{test.name}</h4>
-                  <p className="text-xs text-zinc-400">{test.role}</p>
-                </div>
+            ))}
+          </div>
+        )}
+
+        {/* Submit Review Form */}
+        <div className="mt-20 max-w-2xl mx-auto glass-panel border-indigo-500/10 rounded-2xl p-6 sm:p-8">
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-bold text-zinc-900 dark:text-white">Write a Review</h3>
+            <p className="text-xs text-zinc-500 mt-1">Share your experience with SUVIR Printing!</p>
+          </div>
+
+          <form onSubmit={handleSubmitReview} className="space-y-4 text-xs sm:text-sm">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1.5">Your Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={reviewName}
+                  onChange={(e) => setReviewName(e.target.value)}
+                  placeholder="e.g. John Doe"
+                  className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/5 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-500/30"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1.5">Your Role / Context</label>
+                <input
+                  type="text"
+                  value={reviewRole}
+                  onChange={(e) => setReviewRole(e.target.value)}
+                  placeholder="e.g. PhD Scholar, Designer"
+                  className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/5 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-500/30"
+                />
               </div>
             </div>
-          ))}
+
+            <div>
+              <label className="block text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1.5">Rating</label>
+              <div className="flex items-center space-x-1.5">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setReviewRating(star)}
+                    className="p-1 text-amber-500 hover:scale-110 transition"
+                  >
+                    <Star
+                      className={`h-6 w-6 ${star <= reviewRating ? "fill-amber-500" : "text-zinc-400 dark:text-zinc-700"}`}
+                    />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-1.5">Your Review *</label>
+              <textarea
+                required
+                rows={3}
+                value={reviewComment}
+                onChange={(e) => setReviewComment(e.target.value)}
+                placeholder="What did you print? How was the speed and quality?"
+                className="w-full px-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white/5 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-indigo-500/30 resize-none"
+              />
+            </div>
+
+            {reviewSuccess && (
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 text-xs font-bold text-center">
+                Review submitted successfully! Thank you for sharing your feedback.
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={submittingReview || !reviewName.trim() || !reviewComment.trim()}
+              className="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition duration-200 disabled:opacity-40"
+            >
+              {submittingReview ? "Submitting..." : "Submit Review"}
+            </button>
+          </form>
         </div>
       </section>
 

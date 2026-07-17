@@ -23,6 +23,8 @@ import {
   Printer,
   Sun,
   Moon,
+  HelpCircle,
+  MessageSquare,
 } from "lucide-react";
 
 const sidebarLinks = [
@@ -33,6 +35,8 @@ const sidebarLinks = [
   { name: "Pricing", href: "/admin/pricing", icon: DollarSign },
   { name: "Merchandise", href: "/admin/merchandise", icon: ShoppingBag },
   { name: "Offers", href: "/admin/offers", icon: Gift },
+  { name: "FAQs", href: "/admin/faqs", icon: HelpCircle },
+  { name: "Reviews", href: "/admin/reviews", icon: MessageSquare },
   { name: "Users", href: "/admin/users", icon: Users },
   { name: "Settings", href: "/admin/settings", icon: Settings },
 ];

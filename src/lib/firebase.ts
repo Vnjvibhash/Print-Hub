@@ -32,7 +32,7 @@ import {
   getDownloadURL,
   type FirebaseStorage
 } from "firebase/storage";
-import { UserProfile, ServiceItem, ProductItem, Order, NotificationRecord, CarouselSlide, OfferRecord } from "@/types";
+import { UserProfile, ServiceItem, ProductItem, Order, NotificationRecord, CarouselSlide, OfferRecord, FAQRecord, ReviewRecord } from "@/types";
 import { DEFAULT_TIERED_SERVICES } from "@/lib/pricing";
 import seedData from "@/data/printhub-seed-data.json";
 
@@ -772,6 +772,144 @@ export const dbService = {
           });
           return defaultOffers;
         }
+        if (collName === "faqs") {
+          const defaultFAQs = [
+            {
+              id: "faq-1",
+              q: "What file formats do you accept for document printing?",
+              a: "We support PDF, DOCX, PPTX, XLSX, PNG, JPG, and JPEG. For thesis papers and multi-page manuals, we strongly recommend exporting your files as PDF first to ensure your layouts, margins, and fonts are preserved exactly.",
+              displayOnFrontEnd: true,
+              createdAt: new Date().toISOString(),
+              order: 1,
+            },
+            {
+              id: "faq-2",
+              q: "What is the maximum file size I can upload?",
+              a: "Our file upload system supports files up to 500 MB. This easily accommodates large high-resolution vectors, blueprints, and multi-hundred-page research project volumes.",
+              displayOnFrontEnd: true,
+              createdAt: new Date().toISOString(),
+              order: 2,
+            },
+            {
+              id: "faq-3",
+              q: "How does the dynamic pricing calculator work?",
+              a: "The pricing engine calculates costs in real-time based on A4/A3 dimension parameters, single or double-sided configuration, color format (color prints require specialized ink channels and cost more), lamination choices, and binding types (such as spiral binders). The final price is multiplied by the number of copies.",
+              displayOnFrontEnd: true,
+              createdAt: new Date().toISOString(),
+              order: 3,
+            },
+            {
+              id: "faq-4",
+              q: "How can I track my order status?",
+              a: "Once you submit an order, you will receive a unique Order ID (e.g., PH-9821). You can input this ID on our Track Order page at any time to see its exact status: Pending, Payment Received, Processing, Designing, Printing, Ready for Pickup, Shipped, or Delivered.",
+              displayOnFrontEnd: true,
+              createdAt: new Date().toISOString(),
+              order: 4,
+            },
+            {
+              id: "faq-5",
+              q: "What is the Magic Mug and how does it work?",
+              a: "A Magic Mug is a ceramic mug coated with a heat-sensitive layer. When cold, it displays a solid black layout. When you pour in hot liquid (tea, coffee, hot water), the black coating becomes transparent, revealing your custom printed high-definition photo or text underneath!",
+              displayOnFrontEnd: true,
+              createdAt: new Date().toISOString(),
+              order: 5,
+            },
+            {
+              id: "faq-6",
+              q: "What payment gateways are supported?",
+              a: "We support Stripe, Razorpay (for card payments, NetBanking, wallets), and UPI QR Scan codes. If you select UPI QR, the system generates a dynamic scan code for you to scan and make payments using apps like GooglePay, PhonePe, or Paytm.",
+              displayOnFrontEnd: true,
+              createdAt: new Date().toISOString(),
+              order: 6,
+            },
+          ];
+          defaultFAQs.forEach(async (faq) => {
+            try {
+              await setDoc(doc(firebaseDb!, "faqs", faq.id), faq);
+            } catch (err) {
+              console.warn(`Failed to auto-seed faq ${faq.id} to Firestore:`, err);
+            }
+          });
+          return defaultFAQs as unknown as T[];
+        }
+        if (collName === "reviews") {
+          const defaultReviews = [
+            {
+              id: "rev-1",
+              customerId: "user-customer",
+              customerName: "Rahul Verma",
+              customerRole: "PhD Scholar",
+              rating: 5,
+              comment: "Printed my complete doctoral thesis here. The spiral binding is sturdy and A4 color page quality is stellar. Finished in less than 2 hours!",
+              serviceId: "a4-color",
+              approved: true,
+              createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
+            },
+            {
+              id: "rev-2",
+              customerId: "user-customer",
+              customerName: "Sneha Kapoor",
+              customerRole: "Brand Manager",
+              rating: 5,
+              comment: "Ordered 500 visiting cards and customized hoodies for our startup crew. Colors match our branding exactly and prints are very durable.",
+              serviceId: "visiting-cards",
+              approved: true,
+              createdAt: new Date(Date.now() - 15 * 86400000).toISOString(),
+            },
+            {
+              id: "rev-3",
+              customerId: "user-customer",
+              customerName: "Amit Joshi",
+              customerRole: "Gift Shop Owner",
+              rating: 5,
+              comment: "The Magic Mugs are a bestseller. The transition is smooth and prints look premium. The bulk billing tools make tracking payments a breeze.",
+              serviceId: "mug-print",
+              approved: true,
+              createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+            },
+            {
+              id: "rev-4",
+              customerId: "user-customer",
+              customerName: "Priya Sharma",
+              customerRole: "Delhi University Student",
+              rating: 5,
+              comment: "Got my semester study guides printed and spiral bound. Extremely cost-effective for students, and fast delivery too!",
+              serviceId: "a4-bw",
+              approved: true,
+              createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+            },
+            {
+              id: "rev-5",
+              customerId: "user-customer",
+              customerName: "Vikram Malhotra",
+              customerRole: "Tech Startup Founder",
+              rating: 5,
+              comment: "Ordered custom hoodies and letterheads for our team. The print quality is premium and customer support was very helpful.",
+              serviceId: "hoodie-print",
+              approved: true,
+              createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+            },
+            {
+              id: "rev-6",
+              customerId: "user-customer",
+              customerName: "Ananya Patel",
+              customerRole: "Freelance Designer",
+              rating: 4,
+              comment: "Excellent sticker sheet and vinyl printing. Clean cuts and vivid colors. Perfect for packaging labels.",
+              serviceId: "vinyl-sheet",
+              approved: true,
+              createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+            },
+          ];
+          defaultReviews.forEach(async (rev) => {
+            try {
+              await setDoc(doc(firebaseDb!, "reviews", rev.id), rev);
+            } catch (err) {
+              console.warn(`Failed to auto-seed review ${rev.id} to Firestore:`, err);
+            }
+          });
+          return defaultReviews as unknown as T[];
+        }
       }
 
       return results;
@@ -1169,6 +1307,134 @@ export const dbService = {
     ];
     defaultOffers.forEach((offer) => {
       tasks.push(dbService.setDocument("offers", offer.id, offer));
+    });
+
+    // Seed default FAQs
+    const defaultFAQs: FAQRecord[] = [
+      {
+        id: "faq-1",
+        q: "What file formats do you accept for document printing?",
+        a: "We support PDF, DOCX, PPTX, XLSX, PNG, JPG, and JPEG. For thesis papers and multi-page manuals, we strongly recommend exporting your files as PDF first to ensure your layouts, margins, and fonts are preserved exactly.",
+        displayOnFrontEnd: true,
+        createdAt: new Date().toISOString(),
+        order: 1,
+      },
+      {
+        id: "faq-2",
+        q: "What is the maximum file size I can upload?",
+        a: "Our file upload system supports files up to 500 MB. This easily accommodates large high-resolution vectors, blueprints, and multi-hundred-page research project volumes.",
+        displayOnFrontEnd: true,
+        createdAt: new Date().toISOString(),
+        order: 2,
+      },
+      {
+        id: "faq-3",
+        q: "How does the dynamic pricing calculator work?",
+        a: "The pricing engine calculates costs in real-time based on A4/A3 dimension parameters, single or double-sided configuration, color format (color prints require specialized ink channels and cost more), lamination choices, and binding types (such as spiral binders). The final price is multiplied by the number of copies.",
+        displayOnFrontEnd: true,
+        createdAt: new Date().toISOString(),
+        order: 3,
+      },
+      {
+        id: "faq-4",
+        q: "How can I track my order status?",
+        a: "Once you submit an order, you will receive a unique Order ID (e.g., PH-9821). You can input this ID on our Track Order page at any time to see its exact status: Pending, Payment Received, Processing, Designing, Printing, Ready for Pickup, Shipped, or Delivered.",
+        displayOnFrontEnd: true,
+        createdAt: new Date().toISOString(),
+        order: 4,
+      },
+      {
+        id: "faq-5",
+        q: "What is the Magic Mug and how does it work?",
+        a: "A Magic Mug is a ceramic mug coated with a heat-sensitive layer. When cold, it displays a solid black layout. When you pour in hot liquid (tea, coffee, hot water), the black coating becomes transparent, revealing your custom printed high-definition photo or text underneath!",
+        displayOnFrontEnd: true,
+        createdAt: new Date().toISOString(),
+        order: 5,
+      },
+      {
+        id: "faq-6",
+        q: "What payment gateways are supported?",
+        a: "We support Stripe, Razorpay (for card payments, NetBanking, wallets), and UPI QR Scan codes. If you select UPI QR, the system generates a dynamic scan code for you to scan and make payments using apps like GooglePay, PhonePe, or Paytm.",
+        displayOnFrontEnd: true,
+        createdAt: new Date().toISOString(),
+        order: 6,
+      },
+    ];
+    defaultFAQs.forEach((faq) => {
+      tasks.push(dbService.setDocument("faqs", faq.id, faq));
+    });
+
+    // Seed default Reviews
+    const defaultReviews: ReviewRecord[] = [
+      {
+        id: "rev-1",
+        customerId: "user-customer",
+        customerName: "Rahul Verma",
+        customerRole: "PhD Scholar",
+        rating: 5,
+        comment: "Printed my complete doctoral thesis here. The spiral binding is sturdy and A4 color page quality is stellar. Finished in less than 2 hours!",
+        serviceId: "a4-color",
+        approved: true,
+        createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
+      },
+      {
+        id: "rev-2",
+        customerId: "user-customer",
+        customerName: "Sneha Kapoor",
+        customerRole: "Brand Manager",
+        rating: 5,
+        comment: "Ordered 500 visiting cards and customized hoodies for our startup crew. Colors match our branding exactly and prints are very durable.",
+        serviceId: "visiting-cards",
+        approved: true,
+        createdAt: new Date(Date.now() - 15 * 86400000).toISOString(),
+      },
+      {
+        id: "rev-3",
+        customerId: "user-customer",
+        customerName: "Amit Joshi",
+        customerRole: "Gift Shop Owner",
+        rating: 5,
+        comment: "The Magic Mugs are a bestseller. The transition is smooth and prints look premium. The bulk billing tools make tracking payments a breeze.",
+        serviceId: "mug-print",
+        approved: true,
+        createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
+      },
+      {
+        id: "rev-4",
+        customerId: "user-customer",
+        customerName: "Priya Sharma",
+        customerRole: "Delhi University Student",
+        rating: 5,
+        comment: "Got my semester study guides printed and spiral bound. Extremely cost-effective for students, and fast delivery too!",
+        serviceId: "a4-bw",
+        approved: true,
+        createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
+      },
+      {
+        id: "rev-5",
+        customerId: "user-customer",
+        customerName: "Vikram Malhotra",
+        customerRole: "Tech Startup Founder",
+        rating: 5,
+        comment: "Ordered custom hoodies and letterheads for our team. The print quality is premium and customer support was very helpful.",
+        serviceId: "hoodie-print",
+        approved: true,
+        createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
+      },
+      {
+        id: "rev-6",
+        customerId: "user-customer",
+        customerName: "Ananya Patel",
+        customerRole: "Freelance Designer",
+        rating: 4,
+        comment: "Excellent sticker sheet and vinyl printing. Clean cuts and vivid colors. Perfect for packaging labels.",
+        serviceId: "vinyl-sheet",
+        approved: true,
+        createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
+      },
+    ];
+    defaultReviews.forEach((rev) => {
+      tasks.push(dbService.setDocument("reviews", rev.id, rev));
     });
 
     defaultOrders.forEach((order) => {

@@ -148,9 +148,11 @@ export interface ReviewRecord {
   id: string;
   customerId: string;
   customerName: string;
+  customerRole?: string;
   rating: number;
   comment: string;
   serviceId: string;
+  approved: boolean;
   createdAt: string;
 }
 
@@ -197,4 +199,13 @@ export interface BusinessSettings {
   upiId: string;
   contactEmail: string;
   rates?: Record<string, number>;
+}
+
+export interface FAQRecord {
+  id: string;
+  q: string;
+  a: string;
+  displayOnFrontEnd: boolean;
+  createdAt: string;
+  order: number;
 }
