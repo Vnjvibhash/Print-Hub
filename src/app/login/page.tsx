@@ -1,16 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Printer, Mail, Lock, User, LogIn, ChevronRight, ShieldAlert, Shield, Zap } from "lucide-react";
-import Link from "next/link";
+import { Printer, Mail, Lock, User, LogIn, ShieldAlert, Shield, Zap } from "lucide-react";
 
 function LoginContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const { user, signIn, signUp, signInWithGoogle, loading } = useAuth();
   
   const [isSignUpMode, setIsSignUpMode] = useState(false);
@@ -31,7 +29,7 @@ function LoginContent() {
         router.push("/dashboard");
       }
     }
-  }, [user, loading]);
+  }, [user, loading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

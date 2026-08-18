@@ -16,7 +16,6 @@ import {
   Calendar,
   Eye,
   EyeOff,
-  Tag,
   Zap,
   Clock,
 } from "lucide-react";

@@ -5,15 +5,10 @@ import { dbService } from "@/lib/firebase";
 import { Order, OrderStatus } from "@/types";
 import {
   Search,
-  Filter,
   ChevronDown,
   ChevronUp,
-  Eye,
-  Truck,
-  CheckCircle,
   XCircle,
   Package,
-  Clock,
   FileText,
   Download,
   RefreshCw,
@@ -92,7 +87,7 @@ export default function AdminOrdersPage() {
       companyName: "SUVIR Printing",
       companyAddress: "102, Digital Towers, Sector 62, Noida, UP - 201301",
       gstNumber: "27AAAAA1111A1Z1",
-      contactEmail: "support@printhub.com",
+      contactEmail: "support@suvirprinting.com",
     };
     if (settingsRaw) {
       try {

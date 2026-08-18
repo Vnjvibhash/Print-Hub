@@ -9,10 +9,7 @@ import { Order, Address } from "@/types";
 import { useRouter } from "next/navigation";
 import { 
   ClipboardList, 
-  Clock, 
-  CheckCircle, 
   MapPin, 
-  FileText, 
   Download, 
   User, 
   Plus, 
@@ -54,14 +51,14 @@ export default function CustomerDashboard() {
       }
     }
     loadOrders();
-  }, [user, loading]);
+  }, [user, loading, router]);
 
   const handleDownloadInvoice = (order: Order) => {
     const pdf = generateInvoicePDF(order, {
       companyName: "SUVIR Printing",
       companyAddress: "102, Digital Towers, Sector 62, Noida, UP - 201301",
       gstNumber: "27AAAAA1111A1Z1",
-      contactEmail: "support@printhub.com"
+      contactEmail: "support@suvirprinting.com"
     });
     pdf.save(`Invoice_${order.id}.pdf`);
   };

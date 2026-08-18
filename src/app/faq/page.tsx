@@ -75,7 +75,7 @@ export default function FAQPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {faqs.map((faq, idx) => (
+            {faqs.map((faq) => (
               <details
                 key={faq.id}
                 name="faq"

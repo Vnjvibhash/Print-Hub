@@ -184,7 +184,7 @@ function CheckoutContent() {
   // Generate UPI QR Code URL when payment method is UPI
   useEffect(() => {
     if (paymentMethod === "upi" && priceBreakdown) {
-      const upiString = `upi://pay?pa=pay.printhub@okaxis&pn=SUVIR%20Printing&am=${priceBreakdown.total}&cu=INR&tn=SUVIR-ORDER`;
+      const upiString = `upi://pay?pa=pay.suvirprinting@okaxis&pn=SUVIR%20Printing&am=${priceBreakdown.total}&cu=INR&tn=SUVIR-ORDER`;
       QRCode.toDataURL(upiString, { width: 200, margin: 1 })
         .then((url) => setUpiQrDataUrl(url))
         .catch((err) => console.error("QR generation failed:", err));
@@ -262,7 +262,7 @@ function CheckoutContent() {
         companyName: "SUVIR Printing",
         companyAddress: "102, Digital Towers, Sector 62, Noida, UP - 201301",
         gstNumber: "27AAAAA1111A1Z1",
-        contactEmail: "support@printhub.com"
+        contactEmail: "support@suvirprinting.com"
       });
       
       // In a real env, we would upload pdf to storage.
@@ -300,7 +300,7 @@ function CheckoutContent() {
       companyName: "SUVIR Printing",
       companyAddress: "102, Digital Towers, Sector 62, Noida, UP - 201301",
       gstNumber: "27AAAAA1111A1Z1",
-      contactEmail: "support@printhub.com"
+      contactEmail: "support@suvirprinting.com"
     });
     pdf.save(`Invoice_${completedOrder.id}.pdf`);
   };

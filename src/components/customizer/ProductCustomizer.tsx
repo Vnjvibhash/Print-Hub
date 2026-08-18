@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import FileUploader from "@/components/upload/FileUploader";
 import { calculatePricing } from "@/lib/pricing";
 import { ProductItem, SpecificationOptions, PriceBreakdown } from "@/types";
-import { Check, Type, Image as ImageIcon, Sparkles, ShoppingCart, RefreshCw, ZoomIn, ZoomOut } from "lucide-react";
+import { Check, Type, Image as ImageIcon, Sparkles, ShoppingCart, RefreshCw } from "lucide-react";
 import { dbService } from "@/lib/firebase";
 
 interface ProductCustomizerProps {
@@ -28,11 +28,7 @@ export default function ProductCustomizer({ initialType = "tshirt", onAddToCart 
   const [textColor, setTextColor] = useState<string>("#000000");
   const [textFontSize, setTextFontSize] = useState<number>(18);
   const [designUrl, setDesignUrl] = useState<string>("");
-  const [designMeta, setDesignMeta] = useState<any>(null);
   const [priceBreakdown, setPriceBreakdown] = useState<PriceBreakdown | null>(null);
-
-  // Layout references for sizing
-  const canvasRef = useRef<HTMLDivElement>(null);
 
   // Load products list
   useEffect(() => {
@@ -94,15 +90,13 @@ export default function ProductCustomizer({ initialType = "tshirt", onAddToCart 
     }
   };
 
-  const handleUploadSuccess = (url: string, meta: any) => {
+  const handleUploadSuccess = (url: string) => {
     setDesignUrl(url);
-    setDesignMeta(meta);
   };
 
   const handleReset = () => {
     setCustomText("");
     setDesignUrl("");
-    setDesignMeta(null);
     setQuantity(1);
   };
 

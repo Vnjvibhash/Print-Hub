@@ -22,7 +22,6 @@ import {
   deleteDoc, 
   query, 
   where,
-  orderBy,
   type Firestore
 } from "firebase/firestore";
 import { 
@@ -32,9 +31,7 @@ import {
   getDownloadURL,
   type FirebaseStorage
 } from "firebase/storage";
-import { UserProfile, ServiceItem, ProductItem, Order, NotificationRecord, CarouselSlide, OfferRecord, FAQRecord, ReviewRecord } from "@/types";
-import { DEFAULT_TIERED_SERVICES } from "@/lib/pricing";
-import seedData from "@/data/printhub-seed-data.json";
+import { UserProfile, ServiceItem, ProductItem, Order, CarouselSlide, OfferRecord } from "@/types";
 
 // 1. Firebase Configuration Detection
 const firebaseConfig = {
@@ -45,8 +42,6 @@ const firebaseConfig = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
-
-const firebaseGoogleClientId = process.env.NEXT_PUBLIC_FIREBASE_GOOGLE_CLIENT_ID;
 
 const isFirebaseConfigured = !!(
   firebaseConfig.apiKey && 
@@ -233,6 +228,138 @@ const DEFAULT_PRODUCTS: ProductItem[] = [
   { id: "prod-mousepad", name: "Premium Non-Slip Mousepad", type: "mousepad", basePrice: 120, imageUrl: "/images/mousepad.jpg", colors: ["#ffffff", "#000000", "#374151"] },
 ];
 
+export const DEFAULT_SLIDES: CarouselSlide[] = [
+  {
+    id: "slide-document-print",
+    tag: "⚡ Super Fast",
+    tagColor: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
+    headline: "Print Documents,",
+    highlight: "Instantly.",
+    sub: "A4 & A3 documents, reports, theses — B&W or full color. Ready within the hour.",
+    ctaLabel: "Upload & Order Now",
+    ctaHref: "/services",
+    secondaryCtaLabel: "View Pricing",
+    secondaryCtaHref: "/pricing",
+    accentColor: "indigo",
+    iconName: "Printer",
+    stats: [
+      { value: "₹2", label: "per A4 B&W page" },
+      { value: "₹10", label: "per A4 color page" },
+      { value: "1 hr", label: "average turnaround" },
+    ],
+    isActive: true,
+    order: 0,
+  },
+  {
+    id: "slide-business-cards",
+    tag: "💼 Corporate",
+    tagColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    headline: "Premium Business",
+    highlight: "Cards & Stationery.",
+    sub: "350GSM matte & glossy finish cards, letterheads, envelopes, and brochures for your brand.",
+    ctaLabel: "Design Your Cards",
+    ctaHref: "/services",
+    secondaryCtaLabel: "Bulk Quote",
+    secondaryCtaHref: "/pricing",
+    accentColor: "emerald",
+    iconName: "Layers",
+    stats: [
+      { value: "₹1.5", label: "per card" },
+      { value: "500+", label: "minimum for bulk" },
+      { value: "350gsm", label: "premium cardstock" },
+    ],
+    isActive: true,
+    order: 1,
+  },
+  {
+    id: "slide-custom-merch",
+    tag: "🎁 Trending Now",
+    tagColor: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+    headline: "Custom Merchandise",
+    highlight: "Made to Order.",
+    sub: "T-shirts, hoodies, caps, mugs, cushions, mobile covers and more — print your design on anything.",
+    ctaLabel: "Start Customizing",
+    ctaHref: "/customizer",
+    secondaryCtaLabel: "See All Merch",
+    secondaryCtaHref: "/services",
+    accentColor: "purple",
+    iconName: "Sparkles",
+    stats: [
+      { value: "20+", label: "product types" },
+      { value: "₹150", label: "starting price" },
+      { value: "DTF", label: "premium print tech" },
+    ],
+    isActive: true,
+    order: 2,
+  },
+  {
+    id: "slide-gifts",
+    tag: "🎀 Perfect Gifts",
+    tagColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+    headline: "Personalized Gifts",
+    highlight: "They'll Love.",
+    sub: "Magic mugs, canvas prints, photo pillows, keychains, and more — perfect for every occasion.",
+    ctaLabel: "Browse Gift Ideas",
+    ctaHref: "/customizer",
+    secondaryCtaLabel: "Corporate Gifts",
+    secondaryCtaHref: "/services",
+    accentColor: "amber",
+    iconName: "Gift",
+    stats: [
+      { value: "100%", label: "custom printed" },
+      { value: "₹150", label: "mugs starting at" },
+      { value: "Next day", label: "dispatch available" },
+    ],
+    isActive: true,
+    order: 3,
+  },
+];
+
+export const DEFAULT_OFFERS: OfferRecord[] = [
+  {
+    id: "offer-welcome-10",
+    code: "WELCOME10",
+    name: "New Customer Discount",
+    description: "Get 10% off your entire first document or custom merchandise printing order.",
+    discountType: "percentage",
+    discountValue: 10,
+    applicableServiceIds: [],
+    minOrderValue: 100,
+    startDate: "2024-01-01T00:00:00.000Z",
+    endDate: "2027-12-31T23:59:59.000Z",
+    isActive: true,
+    createdAt: "2024-01-01T00:00:00.000Z",
+  },
+  {
+    id: "offer-bulk-thesis",
+    code: "THESIS20",
+    name: "Student Thesis & Report Special",
+    description: "Flat ₹50 discount on thesis book printing and spiral binding projects over ₹300.",
+    discountType: "flat",
+    discountValue: 50,
+    applicableServiceIds: ["spiral-binding", "a4-bw", "a4-color"],
+    minOrderValue: 300,
+    startDate: "2024-01-01T00:00:00.000Z",
+    endDate: "2027-12-31T23:59:59.000Z",
+    isActive: true,
+    createdAt: "2024-01-01T00:00:00.000Z",
+  },
+  {
+    id: "offer-merch-fest",
+    code: "MERCH15",
+    name: "Custom Merchandise Festival",
+    description: "Enjoy 15% discount on custom coffee mugs, magic mugs, t-shirts, and photo gifts.",
+    discountType: "percentage",
+    discountValue: 15,
+    applicableServiceIds: ["mug-print", "magic-mug", "tshirt-print", "hoodie-print", "pillow-print"],
+    minOrderValue: 250,
+    startDate: "2024-01-01T00:00:00.000Z",
+    endDate: "2027-12-31T23:59:59.000Z",
+    isActive: true,
+    createdAt: "2024-01-01T00:00:00.000Z",
+  },
+];
+
 // Prepopulate localStorage for Mocks
 const getLocalData = (key: string) => {
   if (typeof window === "undefined") return null;
@@ -280,8 +407,8 @@ const initLocalDatabase = () => {
       companyName: "SUVIR Printing",
       companyAddress: "102, Digital Towers, Sector 62, Noida, UP - 201301",
       taxRate: 18,
-      upiId: "pay.printhub@okaxis",
-      contactEmail: "support@printhub.com"
+      upiId: "pay.suvirprinting@okaxis",
+      contactEmail: "support@suvirprinting.com"
     });
   }
   
@@ -290,7 +417,7 @@ const initLocalDatabase = () => {
     const defaultUsers: Record<string, UserProfile> = {
       "user-customer": {
         uid: "user-customer",
-        email: "customer@printhub.com",
+        email: "customer@suvirprinting.com",
         displayName: "Vikas Yadav",
         role: "customer",
         photoURL: "https://api.dicebear.com/7.x/adventurer/svg?seed=Jane",
@@ -302,7 +429,7 @@ const initLocalDatabase = () => {
       },
       "user-admin": {
         uid: "user-admin",
-        email: "admin@printhub.com",
+        email: "admin@suvirprinting.com",
         displayName: "Viveka Jee",
         role: "admin",
         photoURL: "https://api.dicebear.com/7.x/adventurer/svg?seed=Admin",
@@ -314,105 +441,17 @@ const initLocalDatabase = () => {
     setLocalData("users", defaultUsers);
   }
 
-  // Prepopulate sample order history for demonstration
-  // Carousel slides
+  // Prepopulate carousel slides
   if (!getLocalData("carousel")) {
-    const defaultSlides: CarouselSlide[] = [
-      {
-        id: "slide-document-print",
-        tag: "⚡ Super Fast",
-        tagColor: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
-        headline: "Print Documents,",
-        highlight: "Instantly.",
-        sub: "A4 & A3 documents, reports, theses — B&W or full color. Ready within the hour.",
-        ctaLabel: "Upload & Order Now",
-        ctaHref: "/services",
-        secondaryCtaLabel: "View Pricing",
-        secondaryCtaHref: "/pricing",
-        accentColor: "indigo",
-        iconName: "Printer",
-        stats: [
-          { value: "₹2", label: "per A4 B&W page" },
-          { value: "₹10", label: "per A4 color page" },
-          { value: "1 hr", label: "average turnaround" },
-        ],
-        isActive: true,
-        order: 0,
-      },
-      {
-        id: "slide-business-cards",
-        tag: "💼 Corporate",
-        tagColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-        headline: "Premium Business",
-        highlight: "Cards & Stationery.",
-        sub: "350GSM matte & glossy finish cards, letterheads, envelopes, and brochures for your brand.",
-        ctaLabel: "Design Your Cards",
-        ctaHref: "/services",
-        secondaryCtaLabel: "Bulk Quote",
-        secondaryCtaHref: "/pricing",
-        accentColor: "emerald",
-        iconName: "Layers",
-        stats: [
-          { value: "₹1.5", label: "per card" },
-          { value: "500+", label: "minimum for bulk" },
-          { value: "350gsm", label: "premium cardstock" },
-        ],
-        isActive: true,
-        order: 1,
-      },
-      {
-        id: "slide-custom-merch",
-        tag: "🎁 Trending Now",
-        tagColor: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
-        headline: "Custom Merchandise",
-        highlight: "Made to Order.",
-        sub: "T-shirts, hoodies, caps, mugs, cushions, mobile covers and more — print your design on anything.",
-        ctaLabel: "Start Customizing",
-        ctaHref: "/customizer",
-        secondaryCtaLabel: "See All Merch",
-        secondaryCtaHref: "/services",
-        accentColor: "purple",
-        iconName: "Sparkles",
-        stats: [
-          { value: "20+", label: "product types" },
-          { value: "₹150", label: "starting price" },
-          { value: "DTF", label: "premium print tech" },
-        ],
-        isActive: true,
-        order: 2,
-      },
-      {
-        id: "slide-gifts",
-        tag: "🎀 Perfect Gifts",
-        tagColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-        headline: "Personalized Gifts",
-        highlight: "They'll Love.",
-        sub: "Magic mugs, canvas prints, photo pillows, keychains, and more — perfect for every occasion.",
-        ctaLabel: "Browse Gift Ideas",
-        ctaHref: "/customizer",
-        secondaryCtaLabel: "Corporate Gifts",
-        secondaryCtaHref: "/services",
-        accentColor: "amber",
-        iconName: "Gift",
-        stats: [
-          { value: "100%", label: "custom printed" },
-          { value: "₹150", label: "mugs starting at" },
-          { value: "Next day", label: "dispatch available" },
-        ],
-        isActive: true,
-        order: 3,
-      },
-    ];
-    setLocalData("carousel", defaultSlides);
+    setLocalData("carousel", DEFAULT_SLIDES);
   }
 
   // Offers
-  const defaultOffers = (seedData.offers ?? []) as OfferRecord[];
   const existingOffers = getLocalData("offers");
   if (!existingOffers || existingOffers.length === 0) {
-    setLocalData("offers", defaultOffers);
+    setLocalData("offers", DEFAULT_OFFERS);
   } else {
-    const missingOffers = defaultOffers.filter(
+    const missingOffers = DEFAULT_OFFERS.filter(
       (offer) => !existingOffers.some((existingOffer: OfferRecord) => existingOffer.id === offer.id)
     );
     if (missingOffers.length > 0) {
@@ -749,28 +788,10 @@ export const dbService = {
         if (collName === "services") return DEFAULT_SERVICES as unknown as T[];
         if (collName === "products") return DEFAULT_PRODUCTS as unknown as T[];
         if (collName === "carousel") {
-          const defaultSlides = (seedData.carousel || []) as unknown as T[];
-          // Auto-seed to Firestore
-          defaultSlides.forEach(async (slide: any) => {
-            try {
-              await setDoc(doc(firebaseDb!, "carousel", slide.id), slide);
-            } catch (err) {
-              console.warn(`Failed to auto-seed slide ${slide.id} to Firestore:`, err);
-            }
-          });
-          return defaultSlides;
+          return DEFAULT_SLIDES as unknown as T[];
         }
         if (collName === "offers") {
-          const defaultOffers = (seedData.offers || []) as unknown as T[];
-          // Auto-seed to Firestore
-          defaultOffers.forEach(async (offer: any) => {
-            try {
-              await setDoc(doc(firebaseDb!, "offers", offer.id), offer);
-            } catch (err) {
-              console.warn(`Failed to auto-seed offer ${offer.id} to Firestore:`, err);
-            }
-          });
-          return defaultOffers;
+          return DEFAULT_OFFERS as unknown as T[];
         }
         if (collName === "faqs") {
           const defaultFAQs = [
@@ -1028,6 +1049,20 @@ export const dbService = {
 
   // Delete document
   deleteDocument: async (collName: string, docId: string): Promise<void> => {
+    // Permanent Protection for Super Admin account
+    if (collName === "users") {
+      if (docId === "vnjvibhash@gmail.com" || docId.toLowerCase().includes("vnjvibhash")) {
+        throw new Error("Super Admin account (vnjvibhash@gmail.com) is permanently protected and cannot be deleted.");
+      }
+      const currentUsers = getLocalData("users");
+      if (Array.isArray(currentUsers)) {
+        const found = currentUsers.find((u: any) => (u.id === docId || u.uid === docId));
+        if (found && found.email?.toLowerCase() === "vnjvibhash@gmail.com") {
+          throw new Error("Super Admin account (vnjvibhash@gmail.com) is permanently protected and cannot be deleted.");
+        }
+      }
+    }
+
     if (isFirebaseEnabled) {
       try {
         await deleteDoc(doc(firebaseDb!, collName, docId));
@@ -1051,7 +1086,7 @@ export const dbService = {
     } else {
       const collectionData = getLocalData(collName);
       if (Array.isArray(collectionData)) {
-        const filtered = collectionData.filter((item: any) => item.id !== docId);
+        const filtered = collectionData.filter((item: any) => item.id !== docId && item.uid !== docId);
         setLocalData(collName, filtered);
       } else if (collectionData && typeof collectionData === "object") {
         delete collectionData[docId];
@@ -1060,392 +1095,7 @@ export const dbService = {
     }
   },
 
-  // Seed default data into Firebase for a configured project.
-  seedDefaultData: async (): Promise<void> => {
-    if (!isFirebaseEnabled) {
-      throw new Error("Firebase is not configured.");
-    }
 
-    const { importSeedDataFromJson } = await import("@/lib/importSeedData");
-    await importSeedDataFromJson();
-  },
-
-  importSeedData: async (payload: {
-    services: ServiceItem[];
-    products: ProductItem[];
-    users: Array<UserProfile & { photoURL: string; addresses: NonNullable<UserProfile["addresses"]> }>;
-    orders: Order[];
-    carousel: CarouselSlide[];
-    settings: { gstNumber: string; companyName: string; companyAddress: string; taxRate: number; upiId: string; contactEmail: string; };
-    offers: OfferRecord[];
-  }): Promise<void> => {
-    if (!isFirebaseEnabled) {
-      throw new Error("Firebase is not configured.");
-    }
-
-    const { importSeedDataFromJson } = await import("@/lib/importSeedData");
-    await importSeedDataFromJson(payload);
-  },
-
-  seedDefaultDataLegacy: async (): Promise<void> => {
-    if (!isFirebaseEnabled) {
-      throw new Error("Firebase is not configured.");
-    }
-
-    const defaultUsers: UserProfile[] = [
-      {
-        uid: "user-customer",
-        email: "customer@printhub.com",
-        displayName: "Jane Doe",
-        role: "customer",
-        photoURL: "https://api.dicebear.com/7.x/adventurer/svg?seed=Jane",
-        addresses: [
-          {
-            id: "addr-1",
-            name: "Home",
-            street: "Flat 402, Royal Gardens",
-            city: "Noida",
-            state: "Uttar Pradesh",
-            zipCode: "201301",
-            phone: "9876543210",
-          },
-        ],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        uid: "user-admin",
-        email: "admin@printhub.com",
-        displayName: "Viveka Jee",
-        role: "admin",
-        photoURL: "https://api.dicebear.com/7.x/adventurer/svg?seed=Admin",
-        addresses: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-    ];
-
-    const defaultSlides: CarouselSlide[] = [
-      {
-        id: "slide-document-print",
-        tag: "⚡ Super Fast",
-        tagColor: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
-        headline: "Print Documents,",
-        highlight: "Instantly.",
-        sub: "A4 & A3 documents, reports, theses — B&W or full color. Ready within the hour.",
-        ctaLabel: "Upload & Order Now",
-        ctaHref: "/services",
-        secondaryCtaLabel: "View Pricing",
-        secondaryCtaHref: "/pricing",
-        accentColor: "indigo",
-        iconName: "Printer",
-        stats: [
-          { value: "₹2", label: "per A4 B&W page" },
-          { value: "₹10", label: "per A4 color page" },
-          { value: "1 hr", label: "average turnaround" },
-        ],
-        isActive: true,
-        order: 0,
-      },
-      {
-        id: "slide-business-cards",
-        tag: "💼 Corporate",
-        tagColor: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-        headline: "Premium Business",
-        highlight: "Cards & Stationery.",
-        sub: "350GSM matte & glossy finish cards, letterheads, envelopes, and brochures for your brand.",
-        ctaLabel: "Design Your Cards",
-        ctaHref: "/services",
-        secondaryCtaLabel: "Bulk Quote",
-        secondaryCtaHref: "/pricing",
-        accentColor: "emerald",
-        iconName: "Layers",
-        stats: [
-          { value: "₹1.5", label: "per card" },
-          { value: "500+", label: "minimum for bulk" },
-          { value: "350gsm", label: "premium cardstock" },
-        ],
-        isActive: true,
-        order: 1,
-      },
-      {
-        id: "slide-custom-merch",
-        tag: "🎁 Trending Now",
-        tagColor: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
-        headline: "Custom Merchandise",
-        highlight: "Made to Order.",
-        sub: "T-shirts, hoodies, caps, mugs, cushions, mobile covers and more — print your design on anything.",
-        ctaLabel: "Start Customizing",
-        ctaHref: "/customizer",
-        secondaryCtaLabel: "See All Merch",
-        secondaryCtaHref: "/services",
-        accentColor: "purple",
-        iconName: "Sparkles",
-        stats: [
-          { value: "20+", label: "product types" },
-          { value: "₹150", label: "starting price" },
-          { value: "DTF", label: "premium print tech" },
-        ],
-        isActive: true,
-        order: 2,
-      },
-      {
-        id: "slide-gifts",
-        tag: "🎀 Perfect Gifts",
-        tagColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
-        headline: "Personalized Gifts",
-        highlight: "They'll Love.",
-        sub: "Magic mugs, canvas prints, photo pillows, keychains, and more — perfect for every occasion.",
-        ctaLabel: "Browse Gift Ideas",
-        ctaHref: "/customizer",
-        secondaryCtaLabel: "Corporate Gifts",
-        secondaryCtaHref: "/services",
-        accentColor: "amber",
-        iconName: "Gift",
-        stats: [
-          { value: "100%", label: "custom printed" },
-          { value: "₹150", label: "mugs starting at" },
-          { value: "Next day", label: "dispatch available" },
-        ],
-        isActive: true,
-        order: 3,
-      },
-    ];
-
-    const defaultOrders: Order[] = [
-      {
-        id: "PH-9821",
-        customerId: "user-customer",
-        customerEmail: "customer@printhub.com",
-        customerName: "Jane Doe",
-        serviceId: "a4-color",
-        serviceName: "A4 Color Printing",
-        serviceCategory: "printing",
-        files: [{ name: "semester_project_presentation.pdf", url: "#", size: 1048576, type: "application/pdf" }],
-        quantity: 1,
-        specifications: { paperSize: "A4", colorMode: "color", sides: "double", binding: "spiral", pages: 15, copies: 2 },
-        priceBreakdown: { base: 10, optionsPrice: 40, subtotal: 340, gst: 61.2, total: 401.2 },
-        paymentId: "pay_mock_12345",
-        paymentMethod: "stripe",
-        paymentStatus: "completed",
-        orderStatus: "Ready for Pickup",
-        createdAt: new Date(Date.now() - 3600000 * 24 * 2).toISOString(),
-        updatedAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-      },
-      {
-        id: "PH-7712",
-        customerId: "user-customer",
-        customerEmail: "customer@printhub.com",
-        customerName: "Jane Doe",
-        serviceId: "mug-print",
-        serviceName: "Custom Mug Printing",
-        serviceCategory: "merchandise",
-        files: [{ name: "my_family_portrait.jpg", url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300", size: 409600, type: "image/jpeg" }],
-        quantity: 2,
-        specifications: { size: "M" as any, color: "#ffffff", customText: "Happy Birthday Mom", customImageUrl: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300" },
-        priceBreakdown: { base: 150, optionsPrice: 0, subtotal: 300, gst: 54, total: 354 },
-        paymentId: "pay_mock_67890",
-        paymentMethod: "upi",
-        paymentStatus: "completed",
-        orderStatus: "Delivered",
-        createdAt: new Date(Date.now() - 3600000 * 24 * 10).toISOString(),
-        updatedAt: new Date(Date.now() - 3600000 * 24 * 8).toISOString(),
-      },
-    ];
-
-    const tasks: Promise<unknown>[] = [];
-
-    DEFAULT_SERVICES.forEach((service) => {
-      tasks.push(dbService.setDocument("services", service.id, service));
-    });
-    DEFAULT_PRODUCTS.forEach((product) => {
-      tasks.push(dbService.setDocument("products", product.id, product));
-    });
-    defaultUsers.forEach((user) => {
-      tasks.push(dbService.setDocument("users", user.uid, user));
-    });
-    tasks.push(dbService.setDocument("settings", "app-settings", {
-      gstNumber: "27AAAAA1111A1Z1",
-      companyName: "SUVIR Printing",
-      companyAddress: "102, Digital Towers, Sector 62, Noida, UP - 201301",
-      taxRate: 18,
-      upiId: "pay.printhub@okaxis",
-      contactEmail: "support@printhub.com",
-      tieredPricing: DEFAULT_TIERED_SERVICES,
-    }));
-
-    // Seed default offers
-    const defaultOffers: OfferRecord[] = [
-      {
-        id: "offer-welcome10",
-        code: "WELCOME10",
-        name: "Welcome Discount",
-        description: "10% off on all services for new customers.",
-        discountType: "percentage",
-        discountValue: 10,
-        applicableServiceIds: [],
-        minOrderValue: 0,
-        startDate: new Date().toISOString(),
-        endDate: new Date(Date.now() + 90 * 86400000).toISOString(),
-        isActive: true,
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: "offer-bulk50",
-        code: "BULK50",
-        name: "Bulk Print Offer",
-        description: "₹50 flat off on orders above ₹500.",
-        discountType: "flat",
-        discountValue: 50,
-        applicableServiceIds: ["a4-bw", "a4-color", "a3-bw", "a3-color", "visiting-cards", "brochures"],
-        minOrderValue: 500,
-        startDate: new Date().toISOString(),
-        endDate: new Date(Date.now() + 60 * 86400000).toISOString(),
-        isActive: true,
-        createdAt: new Date().toISOString(),
-      },
-    ];
-    defaultOffers.forEach((offer) => {
-      tasks.push(dbService.setDocument("offers", offer.id, offer));
-    });
-
-    // Seed default FAQs
-    const defaultFAQs: FAQRecord[] = [
-      {
-        id: "faq-1",
-        q: "What file formats do you accept for document printing?",
-        a: "We support PDF, DOCX, PPTX, XLSX, PNG, JPG, and JPEG. For thesis papers and multi-page manuals, we strongly recommend exporting your files as PDF first to ensure your layouts, margins, and fonts are preserved exactly.",
-        displayOnFrontEnd: true,
-        createdAt: new Date().toISOString(),
-        order: 1,
-      },
-      {
-        id: "faq-2",
-        q: "What is the maximum file size I can upload?",
-        a: "Our file upload system supports files up to 500 MB. This easily accommodates large high-resolution vectors, blueprints, and multi-hundred-page research project volumes.",
-        displayOnFrontEnd: true,
-        createdAt: new Date().toISOString(),
-        order: 2,
-      },
-      {
-        id: "faq-3",
-        q: "How does the dynamic pricing calculator work?",
-        a: "The pricing engine calculates costs in real-time based on A4/A3 dimension parameters, single or double-sided configuration, color format (color prints require specialized ink channels and cost more), lamination choices, and binding types (such as spiral binders). The final price is multiplied by the number of copies.",
-        displayOnFrontEnd: true,
-        createdAt: new Date().toISOString(),
-        order: 3,
-      },
-      {
-        id: "faq-4",
-        q: "How can I track my order status?",
-        a: "Once you submit an order, you will receive a unique Order ID (e.g., PH-9821). You can input this ID on our Track Order page at any time to see its exact status: Pending, Payment Received, Processing, Designing, Printing, Ready for Pickup, Shipped, or Delivered.",
-        displayOnFrontEnd: true,
-        createdAt: new Date().toISOString(),
-        order: 4,
-      },
-      {
-        id: "faq-5",
-        q: "What is the Magic Mug and how does it work?",
-        a: "A Magic Mug is a ceramic mug coated with a heat-sensitive layer. When cold, it displays a solid black layout. When you pour in hot liquid (tea, coffee, hot water), the black coating becomes transparent, revealing your custom printed high-definition photo or text underneath!",
-        displayOnFrontEnd: true,
-        createdAt: new Date().toISOString(),
-        order: 5,
-      },
-      {
-        id: "faq-6",
-        q: "What payment gateways are supported?",
-        a: "We support Stripe, Razorpay (for card payments, NetBanking, wallets), and UPI QR Scan codes. If you select UPI QR, the system generates a dynamic scan code for you to scan and make payments using apps like GooglePay, PhonePe, or Paytm.",
-        displayOnFrontEnd: true,
-        createdAt: new Date().toISOString(),
-        order: 6,
-      },
-    ];
-    defaultFAQs.forEach((faq) => {
-      tasks.push(dbService.setDocument("faqs", faq.id, faq));
-    });
-
-    // Seed default Reviews
-    const defaultReviews: ReviewRecord[] = [
-      {
-        id: "rev-1",
-        customerId: "user-customer",
-        customerName: "Rahul Verma",
-        customerRole: "PhD Scholar",
-        rating: 5,
-        comment: "Printed my complete doctoral thesis here. The spiral binding is sturdy and A4 color page quality is stellar. Finished in less than 2 hours!",
-        serviceId: "a4-color",
-        approved: true,
-        createdAt: new Date(Date.now() - 30 * 86400000).toISOString(),
-      },
-      {
-        id: "rev-2",
-        customerId: "user-customer",
-        customerName: "Sneha Kapoor",
-        customerRole: "Brand Manager",
-        rating: 5,
-        comment: "Ordered 500 visiting cards and customized hoodies for our startup crew. Colors match our branding exactly and prints are very durable.",
-        serviceId: "visiting-cards",
-        approved: true,
-        createdAt: new Date(Date.now() - 15 * 86400000).toISOString(),
-      },
-      {
-        id: "rev-3",
-        customerId: "user-customer",
-        customerName: "Amit Joshi",
-        customerRole: "Gift Shop Owner",
-        rating: 5,
-        comment: "The Magic Mugs are a bestseller. The transition is smooth and prints look premium. The bulk billing tools make tracking payments a breeze.",
-        serviceId: "mug-print",
-        approved: true,
-        createdAt: new Date(Date.now() - 5 * 86400000).toISOString(),
-      },
-      {
-        id: "rev-4",
-        customerId: "user-customer",
-        customerName: "Priya Sharma",
-        customerRole: "Delhi University Student",
-        rating: 5,
-        comment: "Got my semester study guides printed and spiral bound. Extremely cost-effective for students, and fast delivery too!",
-        serviceId: "a4-bw",
-        approved: true,
-        createdAt: new Date(Date.now() - 3 * 86400000).toISOString(),
-      },
-      {
-        id: "rev-5",
-        customerId: "user-customer",
-        customerName: "Vikram Malhotra",
-        customerRole: "Tech Startup Founder",
-        rating: 5,
-        comment: "Ordered custom hoodies and letterheads for our team. The print quality is premium and customer support was very helpful.",
-        serviceId: "hoodie-print",
-        approved: true,
-        createdAt: new Date(Date.now() - 2 * 86400000).toISOString(),
-      },
-      {
-        id: "rev-6",
-        customerId: "user-customer",
-        customerName: "Ananya Patel",
-        customerRole: "Freelance Designer",
-        rating: 4,
-        comment: "Excellent sticker sheet and vinyl printing. Clean cuts and vivid colors. Perfect for packaging labels.",
-        serviceId: "vinyl-sheet",
-        approved: true,
-        createdAt: new Date(Date.now() - 1 * 86400000).toISOString(),
-      },
-    ];
-    defaultReviews.forEach((rev) => {
-      tasks.push(dbService.setDocument("reviews", rev.id, rev));
-    });
-
-    defaultOrders.forEach((order) => {
-      tasks.push(dbService.setDocument("orders", order.id, order));
-    });
-    defaultSlides.forEach((slide) => {
-      tasks.push(dbService.setDocument("carousel", slide.id, slide));
-    });
-
-    await Promise.all(tasks);
-  },
 
   // Query documents with filters
   queryDocuments: async <T>(collName: string, filters: { field: string; operator: "==" | ">" | "<" | "array-contains"; value: any }[]): Promise<T[]> => {
@@ -1511,7 +1161,7 @@ export const storageService = {
             try {
               const fileUrl = URL.createObjectURL(file);
               resolve(fileUrl);
-            } catch (err) {
+            } catch {
               resolve(`https://firebasestorage.googleapis.com/v0/b/printhub-mock/o/${encodeURIComponent(file.name)}?alt=media`);
             }
           }

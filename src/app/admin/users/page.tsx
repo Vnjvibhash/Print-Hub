@@ -7,16 +7,23 @@ import { UserProfile, UserRole } from "@/types";
 import {
   Search,
   Users,
-  ChevronRight,
   Trash2,
   RefreshCw,
   Edit3,
   X,
+  Shield,
 } from "lucide-react";
 
 const ROLE_OPTIONS = ["all", "customer", "admin"] as const;
 
 type RoleFilter = (typeof ROLE_OPTIONS)[number];
+
+const PROTECTED_EMAILS = ["vnjvibhash@gmail.com"];
+
+export const isProtectedUser = (user: { email?: string } | null | undefined): boolean => {
+  if (!user || !user.email) return false;
+  return PROTECTED_EMAILS.some((e) => e.toLowerCase() === user.email?.toLowerCase());
+};
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<UserProfile[]>([]);
@@ -76,7 +83,7 @@ export default function AdminUsersPage() {
     const updates = {
       displayName: editForm.displayName,
       email: editForm.email,
-      role: editForm.role,
+      role: isProtectedUser(editingUser) ? "admin" : editForm.role,
       updatedAt,
     };
 
@@ -98,14 +105,19 @@ export default function AdminUsersPage() {
     }
   };
 
-  const handleDelete = async (uid: string) => {
-    const confirmed = window.confirm("Delete this user account? This action cannot be undone.");
+  const handleDelete = async (userToDelete: UserProfile) => {
+    if (isProtectedUser(userToDelete)) {
+      alert("Super Admin user (vnjvibhash@gmail.com) is permanently protected and cannot be deleted.");
+      return;
+    }
+
+    const confirmed = window.confirm(`Delete user account ${userToDelete.email}? This action cannot be undone.`);
     if (!confirmed) return;
 
     setRefreshing(true);
     try {
-      await dbService.deleteDocument("users", uid);
-      setUsers((prev) => prev.filter((user) => user.uid !== uid));
+      await dbService.deleteDocument("users", userToDelete.uid);
+      setUsers((prev) => prev.filter((user) => user.uid !== userToDelete.uid));
     } catch (err) {
       console.error("Failed to delete user:", err);
     } finally {
@@ -263,15 +275,25 @@ export default function AdminUsersPage() {
                         <Edit3 className="h-3.5 w-3.5" />
                         Edit
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(user.uid)}
-                        disabled={refreshing}
-                        className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-rose-500/10 text-rose-300 hover:bg-rose-500/15 transition text-[11px] font-semibold"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                        Delete
-                      </button>
+                      {isProtectedUser(user) ? (
+                        <span
+                          title="Protected Super Admin - Cannot be deleted"
+                          className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] font-semibold cursor-not-allowed select-none"
+                        >
+                          <Shield className="h-3.5 w-3.5 text-amber-400" />
+                          Protected
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(user)}
+                          disabled={refreshing}
+                          className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-rose-500/10 text-rose-300 hover:bg-rose-500/15 transition text-[11px] font-semibold"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Delete
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -286,7 +308,15 @@ export default function AdminUsersPage() {
           <div className="w-full max-w-2xl rounded-3xl bg-[#09090f] border border-white/10 shadow-2xl shadow-black/30 overflow-hidden">
             <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
               <div>
-                <h3 className="text-lg font-bold text-white">Edit User</h3>
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  Edit User
+                  {isProtectedUser(editingUser) && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                      <Shield className="h-3 w-3" />
+                      Super Admin
+                    </span>
+                  )}
+                </h3>
                 <p className="text-sm text-zinc-500 mt-1">Update name, email, or role for this account.</p>
               </div>
               <button onClick={() => setShowModal(false)} className="rounded-full p-2 text-zinc-400 hover:text-white hover:bg-white/5 transition">
@@ -310,21 +340,34 @@ export default function AdminUsersPage() {
                 <input
                   type="email"
                   value={editForm.email}
+                  disabled={isProtectedUser(editingUser)}
                   onChange={(e) => setEditForm((prev) => ({ ...prev, email: e.target.value }))}
-                  className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500/30 transition"
+                  className={`mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500/30 transition ${
+                    isProtectedUser(editingUser) ? "opacity-60 cursor-not-allowed" : ""
+                  }`}
                 />
               </div>
 
               <div>
                 <label className="text-xs font-semibold uppercase tracking-widest text-zinc-500">Role</label>
-                <select
-                  value={editForm.role}
-                  onChange={(e) => setEditForm((prev) => ({ ...prev, role: e.target.value as UserRole }))}
-                  className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500/30 transition"
-                >
-                  <option value="customer">Customer</option>
-                  <option value="admin">Admin</option>
-                </select>
+                {isProtectedUser(editingUser) ? (
+                  <div className="mt-2 w-full rounded-2xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-sm text-amber-300 flex items-center justify-between">
+                    <span className="font-semibold flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-amber-400" />
+                      Admin (Protected Super Admin)
+                    </span>
+                    <span className="text-[11px] text-zinc-500">Locked</span>
+                  </div>
+                ) : (
+                  <select
+                    value={editForm.role}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, role: e.target.value as UserRole }))}
+                    className="mt-2 w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-zinc-100 focus:outline-none focus:border-indigo-500/30 transition"
+                  >
+                    <option value="customer">Customer</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                )}
               </div>
             </div>
 

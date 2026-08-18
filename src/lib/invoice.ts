@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import { Order, SpecificationOptions } from "@/types";
+import { Order } from "@/types";
 
 export function generateInvoicePDF(order: Order, companySettings: {
   companyName: string;

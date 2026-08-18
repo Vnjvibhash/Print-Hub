@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Printer, Mail, Phone, MapPin, ExternalLink } from "lucide-react";
+import { Printer, Mail, Phone, MapPin } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -94,7 +94,7 @@ export default function Footer() {
             </div>
             <div className="flex items-center space-x-2.5 text-sm text-zinc-500 dark:text-zinc-400">
               <Mail className="h-4.5 w-4.5 text-indigo-500 flex-shrink-0" />
-              <a href="mailto:support@printhub.com" className="hover:underline">support@printhub.com</a>
+              <a href="mailto:support@suvirprinting.com" className="hover:underline">support@suvirprinting.com</a>
             </div>
             <div className="flex items-center space-x-2.5 text-sm text-zinc-500 dark:text-zinc-400">
               <Phone className="h-4.5 w-4.5 text-indigo-500 flex-shrink-0" />

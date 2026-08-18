@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import { storageService } from "@/lib/firebase";
-import { Upload, File, Image, AlertCircle, CheckCircle, RefreshCw, X } from "lucide-react";
+import { Upload, File, Image as ImageIcon, AlertCircle, CheckCircle, RefreshCw, X } from "lucide-react";
 
 interface FileUploaderProps {
   onUploadSuccess: (fileUrl: string, fileMetadata: { name: string; size: number; type: string }) => void;
@@ -133,7 +133,7 @@ export default function FileUploader({
 
   const getFileIcon = () => {
     if (!file) return <File className="w-8 h-8" />;
-    if (file.type.startsWith("image/")) return <Image className="w-8 h-8 text-indigo-500" />;
+    if (file.type.startsWith("image/")) return <ImageIcon className="w-8 h-8 text-indigo-500" />;
     return <File className="w-8 h-8 text-indigo-500" />;
   };
 

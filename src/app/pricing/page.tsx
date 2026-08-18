@@ -5,7 +5,7 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { DEFAULT_PRICING_CONFIG, getAdminRates, getActiveOffers, getBestOfferForService, getServiceTiers, loadPricingFromFirestore, loadOffersFromFirestore } from "@/lib/pricing";
 import { OfferRecord } from "@/types";
-import { DollarSign, Tag, Info, Check, ArrowRight, Sparkles, Percent } from "lucide-react";
+import { Tag, Info, Check, ArrowRight, Sparkles, Percent } from "lucide-react";
 import Link from "next/link";
 
 const TIERED_SERVICES_LIST = [

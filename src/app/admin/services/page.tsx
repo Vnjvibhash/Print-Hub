@@ -15,7 +15,6 @@ import {
   Sparkles,
   FileText,
   Save,
-  RefreshCw,
 } from "lucide-react";
 
 const CATEGORIES: { id: ServiceCategory; label: string; icon: any }[] = [

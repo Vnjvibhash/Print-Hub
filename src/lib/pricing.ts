@@ -411,7 +411,7 @@ export function calculatePricing(
   // 2. Calculations based on service category
   if (MERCH_IDS.includes(serviceId)) {
     // A. Custom Merchandise — flat basePrice per item
-    let merchBase = basePrice;
+    const merchBase = basePrice;
     if (specs.size === "XL" || specs.size === "XXL") {
       optionsPrice += 50;
     } else if (specs.size === "12x18") {

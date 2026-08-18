@@ -5,8 +5,8 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import FileUploader from "@/components/upload/FileUploader";
 import { dbService } from "@/lib/firebase";
-import { calculatePricing, loadPricingFromFirestore, loadOffersFromFirestore, getActiveOffers, getBestOfferForService } from "@/lib/pricing";
-import { ServiceItem, ServiceCategory, SpecificationOptions, PriceBreakdown, OfferRecord } from "@/types";
+import { calculatePricing, loadPricingFromFirestore, loadOffersFromFirestore, getBestOfferForService } from "@/lib/pricing";
+import { ServiceItem, ServiceCategory, SpecificationOptions, PriceBreakdown } from "@/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import { 
   Printer, 
@@ -15,7 +15,6 @@ import {
   FileText, 
   Check, 
   ChevronRight, 
-  DollarSign,
   Info,
   Settings,
   X,
@@ -38,6 +37,7 @@ function ServicesContent() {
   const [activeCategory, setActiveCategory] = useState<ServiceCategory>(initialCategory);
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [settingsVersion, setSettingsVersion] = useState(0);
 
   // Selected Service Configuration State (For Modal)
   const [selectedService, setSelectedService] = useState<ServiceItem | null>(null);
@@ -55,8 +55,6 @@ function ServicesContent() {
 
   // Live Pricing
   const [livePrice, setLivePrice] = useState<PriceBreakdown | null>(null);
-  // Active Offers from Firestore
-  const [activeOffers, setActiveOffers] = useState<OfferRecord[]>([]);
 
   // Fetch Services + pricing/offers from Firestore
   useEffect(() => {
@@ -67,7 +65,6 @@ function ServicesContent() {
         // Now load services (they may have updated pricingTiers)
         const svcs = await dbService.getCollection<ServiceItem>("services");
         setServices(svcs);
-        setActiveOffers(getActiveOffers());
       } catch (err) {
         console.error("Failed to load services:", err);
       } finally {
@@ -77,14 +74,14 @@ function ServicesContent() {
     loadAll();
 
     // Re-read offers when admin changes pricing/offers in another tab
-    const onSettingsUpdate = () => setActiveOffers(getActiveOffers());
+    const onSettingsUpdate = () => setSettingsVersion((v) => v + 1);
     window.addEventListener("printhub_settings_updated", onSettingsUpdate);
     window.addEventListener("storage", onSettingsUpdate);
     return () => {
       window.removeEventListener("printhub_settings_updated", onSettingsUpdate);
       window.removeEventListener("storage", onSettingsUpdate);
     };
-  }, []);
+  }, [settingsVersion]);
 
   // Update live pricing calculation
   useEffect(() => {

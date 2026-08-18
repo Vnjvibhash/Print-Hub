@@ -14,7 +14,7 @@ import {
   ArrowUp,
   ArrowDown,
   Save,
-  Image,
+  Image as ImageIcon,
   Sparkles,
 } from "lucide-react";
 
@@ -221,7 +221,7 @@ export default function AdminCarouselPage() {
         </div>
       ) : slides.length === 0 ? (
         <div className="rounded-2xl bg-white/[0.03] border border-white/5 p-16 text-center">
-          <Image className="h-12 w-12 text-zinc-700 mx-auto mb-3" />
+          <ImageIcon className="h-12 w-12 text-zinc-700 mx-auto mb-3" />
           <p className="text-sm text-zinc-500">No carousel slides found. Add one to get started.</p>
         </div>
       ) : (

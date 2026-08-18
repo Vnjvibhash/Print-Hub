@@ -21,8 +21,6 @@ import {
   Menu,
   X,
   Printer,
-  Sun,
-  Moon,
   HelpCircle,
   MessageSquare,
 } from "lucide-react";
@@ -83,7 +81,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return pathname.startsWith(href);
   };
 
-  const SidebarContent = () => (
+  const renderSidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className={`flex items-center ${collapsed ? "justify-center" : "gap-3"} px-4 h-16 border-b border-white/5`}>
@@ -128,7 +126,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-3 px-3 py-2 mb-2">
             <img
               src={user.photoURL || `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.uid}`}
-              alt={user.displayName}
+              alt={user.displayName || "Admin User"}
               className="w-8 h-8 rounded-full border border-indigo-500/20"
             />
             <div className="min-w-0">
@@ -155,7 +153,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div 
       className="min-h-screen flex bg-[#07070a] text-zinc-100"
-      style={{ ["--sidebar-width" as any]: sidebarWidth }}
+      style={{ ["--sidebar-width" as string]: sidebarWidth } as React.CSSProperties}
     >
       {/* Desktop Sidebar */}
       <aside
@@ -163,7 +161,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           collapsed ? "w-[72px]" : "w-[260px]"
         } fixed inset-y-0 left-0 z-40`}
       >
-        <SidebarContent />
+        {renderSidebarContent()}
         {/* Collapse toggle */}
         <button
           onClick={() => setCollapsed(!collapsed)}
@@ -184,7 +182,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           mobileOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <SidebarContent />
+        {renderSidebarContent()}
       </aside>
 
       {/* Main Content */}

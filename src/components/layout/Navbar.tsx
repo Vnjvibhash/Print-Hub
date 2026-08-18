@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -28,6 +28,21 @@ function ThemeToggle() {
   const [mounted, setMounted] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  const applyTheme = useCallback((t: Theme) => {
+    const root = document.documentElement;
+    if (t === "dark") {
+      root.classList.add("dark");
+      root.classList.remove("light");
+    } else if (t === "light") {
+      root.classList.remove("dark");
+      root.classList.add("light");
+    } else {
+      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      root.classList.toggle("dark", isDark);
+      root.classList.toggle("light", !isDark);
+    }
+  }, []);
+
   useEffect(() => {
     setMounted(true);
     const saved = (localStorage.getItem("theme") as Theme) || "system";
@@ -42,7 +57,7 @@ function ThemeToggle() {
     };
     mq.addEventListener("change", onSystem);
     return () => mq.removeEventListener("change", onSystem);
-  }, []);
+  }, [applyTheme]);
 
   // Close on outside click
   useEffect(() => {
@@ -54,21 +69,6 @@ function ThemeToggle() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
-
-  const applyTheme = (t: Theme) => {
-    const root = document.documentElement;
-    if (t === "dark") {
-      root.classList.add("dark");
-      root.classList.remove("light");
-    } else if (t === "light") {
-      root.classList.remove("dark");
-      root.classList.add("light");
-    } else {
-      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      root.classList.toggle("dark", isDark);
-      root.classList.toggle("light", !isDark);
-    }
-  };
 
   const handleSelect = (t: Theme) => {
     setTheme(t);

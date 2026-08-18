@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -19,8 +19,7 @@ import {
   TrendingUp, 
   Star,
   Layers,
-  Sparkles,
-  Zap
+  Sparkles
 } from "lucide-react";
 
 const LOCAL_TESTIMONIALS: ReviewRecord[] = [
@@ -210,12 +209,30 @@ export default function Home() {
     }
   };
 
+  // Auto-scroll reviews carousel
+  const reviewsScrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const container = reviewsScrollRef.current;
+    if (!container || reviews.length === 0) return;
+    const interval = setInterval(() => {
+      if (!container) return;
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      if (container.scrollLeft >= maxScroll - 2) {
+        container.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        container.scrollBy({ left: 340, behavior: "smooth" });
+      }
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [reviews]);
+
   const estimatorServiceId = useMemo(() => {
     const sizeKey = paperSize.toLowerCase();
     return `${sizeKey}-${colorMode}`;
   }, [paperSize, colorMode]);
 
   const priceBreakdown = useMemo(() => {
+    void settingsVersion;
     return calculatePricing(
       estimatorServiceId,
       1,

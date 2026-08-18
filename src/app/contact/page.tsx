@@ -37,7 +37,7 @@ export default function ContactPage() {
           {/* Contact Details Column */}
           <div className="lg:col-span-5 space-y-8">
             <div className="glass-panel border-white/5 rounded-2xl p-8 space-y-6">
-              <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Our Printing Hub</h2>
+              <h2 className="text-xl font-bold text-zinc-900 dark:text-white">Our Printing Center</h2>
               <p className="text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
                 Visit our physical store for paper proofing, standard laminations, scanning services, or picking up urgent orders.
               </p>
@@ -55,8 +55,8 @@ export default function ContactPage() {
                   <Mail className="h-5 w-5 text-indigo-500 flex-shrink-0 mt-0.5" />
                   <div>
                     <p className="font-semibold text-sm">Support Email</p>
-                    <a href="mailto:support@printhub.com" className="text-xs text-zinc-400 hover:text-indigo-500 mt-1 block">
-                      support@printhub.com
+                    <a href="mailto:support@suvirprinting.com" className="text-xs text-zinc-400 hover:text-indigo-500 mt-1 block">
+                      support@suvirprinting.com
                     </a>
                   </div>
                 </div>

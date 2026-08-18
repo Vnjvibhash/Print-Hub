@@ -28,8 +28,8 @@ const DEFAULT_SETTINGS: SettingsData = {
   companyName: "SUVIR Printing",
   companyAddress: "102, Digital Towers, Sector 62, Noida, UP - 201301",
   gstNumber: "27AAAAA1111A1Z1",
-  contactEmail: "support@printhub.com",
-  upiId: "pay.printhub@okaxis",
+  contactEmail: "support@suvirprinting.com",
+  upiId: "pay.suvirprinting@okaxis",
   taxRate: 18,
 };
 
@@ -37,9 +37,6 @@ export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<SettingsData>(DEFAULT_SETTINGS);
   const [saved, setSaved] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  const [seeding, setSeeding] = useState(false);
-  const [importingJson, setImportingJson] = useState(false);
-  const [seedMessage, setSeedMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const raw = localStorage.getItem("printhub_db_settings");
@@ -92,27 +89,6 @@ export default function AdminSettingsPage() {
     setSaved(false);
   };
 
-  const handleImportJson = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    setImportingJson(true);
-    setSeedMessage(null);
-
-    try {
-      const text = await file.text();
-      const payload = JSON.parse(text);
-      await dbService.importSeedData(payload);
-      setSeedMessage(`Imported ${file.name} successfully.`);
-    } catch (error) {
-      console.error(error);
-      setSeedMessage("Unable to import JSON. Please verify the file structure.");
-    } finally {
-      setImportingJson(false);
-      event.target.value = "";
-    }
-  };
-
   const fields: {
     key: keyof SettingsData;
     label: string;
@@ -150,7 +126,7 @@ export default function AdminSettingsPage() {
       label: "Support Email",
       icon: Mail,
       type: "email",
-      placeholder: "support@printhub.com",
+      placeholder: "support@suvirprinting.com",
       description: "Primary contact email for customer inquiries.",
     },
     {
@@ -158,7 +134,7 @@ export default function AdminSettingsPage() {
       label: "UPI Payment ID",
       icon: CreditCard,
       type: "text",
-      placeholder: "pay.printhub@okaxis",
+      placeholder: "pay.suvirprinting@okaxis",
       description: "UPI VPA used for QR code payment at checkout.",
     },
     {
@@ -181,39 +157,15 @@ export default function AdminSettingsPage() {
         </div>
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={handleReset}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-zinc-400 hover:text-white transition"
           >
             <RotateCcw className="h-3.5 w-3.5" />
             Reset Defaults
           </button>
-          <label className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs font-bold text-zinc-300 hover:text-white transition cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed" aria-disabled={!isFirebaseEnabled || importingJson}>
-            <FileText className={`h-3.5 w-3.5 ${importingJson ? "animate-pulse" : ""}`} />
-            {importingJson ? "Importing JSON..." : "Import JSON"}
-            <input type="file" accept="application/json" className="hidden" onChange={handleImportJson} disabled={!isFirebaseEnabled || importingJson} />
-          </label>
           <button
-            onClick={async () => {
-              if (!isFirebaseEnabled) return;
-              setSeeding(true);
-              setSeedMessage(null);
-              try {
-                await dbService.seedDefaultData();
-                setSeedMessage("Firebase seeding complete. Default data has been written.");
-              } catch (err) {
-                console.error(err);
-                setSeedMessage("Unable to seed Firebase. Check console and Firebase config.");
-              } finally {
-                setSeeding(false);
-              }
-            }}
-            disabled={!isFirebaseEnabled || seeding}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/10 text-xs font-bold text-emerald-300 hover:text-white hover:bg-emerald-500/20 transition disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            <RotateCcw className={`h-3.5 w-3.5 ${seeding ? "animate-spin" : ""}`} />
-            {seeding ? "Seeding Firebase..." : "Seed Firebase Data"}
-          </button>
-          <button
+            type="button"
             onClick={handleSave}
             disabled={!hasChanges}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shadow-lg shadow-indigo-500/20 disabled:opacity-40"
@@ -223,12 +175,6 @@ export default function AdminSettingsPage() {
           </button>
         </div>
       </div>
-
-      {seedMessage && (
-        <div className="rounded-xl bg-white/[0.04] border border-white/10 px-4 py-3 text-sm text-zinc-200">
-          {seedMessage}
-        </div>
-      )}
 
       {/* Unsaved warning */}
       {hasChanges && (
@@ -288,8 +234,8 @@ export default function AdminSettingsPage() {
               localStorage. These values are used across invoice generation, pricing calculations, and checkout flows.
             </p>
             {!isFirebaseEnabled && (
-              <p className="text-[11px] text-rose-400 mt-3">
-                Firebase is not enabled. Set your Firebase environment variables and restart the app to seed data.
+              <p className="text-[11px] text-zinc-500 mt-3">
+                Running in local storage mode. To connect live cloud database, configure your Firebase environment variables.
               </p>
             )}
           </div>

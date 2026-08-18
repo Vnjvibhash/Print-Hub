@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { dbService } from "@/lib/firebase";
-import { Order, ServiceItem, UserProfile } from "@/types";
+import { Order, ServiceItem } from "@/types";
 import {
   Package,
   DollarSign,
@@ -12,11 +12,8 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Clock,
-  CheckCircle,
-  ShoppingBag,
   Layers,
   Gift,
-  Settings,
   ChevronRight,
 } from "lucide-react";
 import {
@@ -54,8 +51,6 @@ export default function AdminDashboard() {
 
   const totalRevenue = orders.reduce((sum, o) => sum + (o.priceBreakdown?.total || 0), 0);
   const activeOrders = orders.filter((o) => !["Delivered", "Cancelled"].includes(o.orderStatus));
-  const deliveredOrders = orders.filter((o) => o.orderStatus === "Delivered");
-  const cancelledOrders = orders.filter((o) => o.orderStatus === "Cancelled");
 
   // Generate chart data from orders (last 7 days)
   const chartData = (() => {

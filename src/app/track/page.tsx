@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { dbService } from "@/lib/firebase";
 import { Order, OrderStatus } from "@/types";
-import { Search, Printer, CheckCircle, Package, Clock, Truck, ClipboardList, ShieldAlert, ArrowLeft } from "lucide-react";
+import { Search, Printer, CheckCircle, Package, Clock, Truck, ClipboardList, ShieldAlert } from "lucide-react";
 
 const STATUS_STEPS: { status: OrderStatus; label: string; desc: string; icon: any }[] = [
   { status: "Pending", label: "Pending", desc: "Awaiting checkout confirmation or payment capture.", icon: Clock },
@@ -20,7 +20,6 @@ const STATUS_STEPS: { status: OrderStatus; label: string; desc: string; icon: an
 ];
 
 function TrackContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const idParam = searchParams.get("id") || "";
 
@@ -152,7 +151,6 @@ function TrackContent() {
                   const Icon = step.icon;
                   const isCompleted = idx < currentStepIdx;
                   const isActive = idx === currentStepIdx;
-                  const isFuture = idx > currentStepIdx;
 
                   return (
                     <div key={idx} className="relative">
