@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { dbService } from "@/lib/firebase";
+import { dbService, storageService } from "@/lib/firebase";
 import { Order, OrderStatus } from "@/types";
 import {
   Search,
@@ -12,6 +12,7 @@ import {
   FileText,
   Download,
   RefreshCw,
+  CheckCircle2,
 } from "lucide-react";
 import { generateInvoicePDF } from "@/lib/invoice";
 
@@ -28,15 +29,15 @@ const ALL_STATUSES: OrderStatus[] = [
 ];
 
 const STATUS_COLORS: Record<string, string> = {
-  Pending: "bg-zinc-500/10 text-zinc-400",
-  "Payment Received": "bg-blue-500/10 text-blue-400",
-  Processing: "bg-amber-500/10 text-amber-400",
-  Designing: "bg-purple-500/10 text-purple-400",
-  Printing: "bg-indigo-500/10 text-indigo-400",
-  "Ready for Pickup": "bg-emerald-500/10 text-emerald-400",
-  Shipped: "bg-cyan-500/10 text-cyan-400",
-  Delivered: "bg-emerald-500/10 text-emerald-400",
-  Cancelled: "bg-rose-500/10 text-rose-400",
+  Pending: "bg-amber-500/10 text-amber-400 border-amber-500/20",
+  "Payment Received": "bg-blue-500/10 text-blue-400 border-blue-500/20",
+  Processing: "bg-indigo-500/10 text-indigo-400 border-indigo-500/20",
+  Designing: "bg-purple-500/10 text-purple-400 border-purple-500/20",
+  Printing: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20",
+  "Ready for Pickup": "bg-teal-500/10 text-teal-400 border-teal-500/20",
+  Shipped: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
+  Delivered: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
+  Cancelled: "bg-rose-500/10 text-rose-400 border-rose-500/20",
 };
 
 export default function AdminOrdersPage() {
@@ -65,15 +66,55 @@ export default function AdminOrdersPage() {
   const handleStatusUpdate = async (orderId: string, newStatus: OrderStatus) => {
     setUpdatingId(orderId);
     try {
-      await dbService.updateDocument("orders", orderId, {
-        orderStatus: newStatus,
-        updatedAt: new Date().toISOString(),
-      });
-      setOrders((prev) =>
-        prev.map((o) =>
-          o.id === orderId ? { ...o, orderStatus: newStatus, updatedAt: new Date().toISOString() } : o
-        )
-      );
+      const targetOrder = orders.find((o) => o.id === orderId);
+
+      // When product is Delivered: purge uploaded files from cloud storage for privacy and storage optimization
+      if (newStatus === "Delivered" && targetOrder) {
+        await storageService.deleteOrderFiles(targetOrder);
+
+        const updatedFiles = (targetOrder.files || []).map((f) => ({
+          ...f,
+          url: "", // purged from storage
+          isPurged: true,
+        }));
+
+        const updatedSpecs = {
+          ...targetOrder.specifications,
+          customImageUrl: "",
+        };
+
+        const updatePayload = {
+          orderStatus: newStatus,
+          files: updatedFiles,
+          specifications: updatedSpecs,
+          filesPurgedAfterDelivery: true,
+          filesPurgedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+
+        await dbService.updateDocument("orders", orderId, updatePayload);
+
+        setOrders((prev) =>
+          prev.map((o) =>
+            o.id === orderId
+              ? {
+                  ...o,
+                  ...updatePayload,
+                }
+              : o
+          )
+        );
+      } else {
+        await dbService.updateDocument("orders", orderId, {
+          orderStatus: newStatus,
+          updatedAt: new Date().toISOString(),
+        });
+        setOrders((prev) =>
+          prev.map((o) =>
+            o.id === orderId ? { ...o, orderStatus: newStatus, updatedAt: new Date().toISOString() } : o
+          )
+        );
+      }
     } catch (err) {
       console.error("Failed to update order:", err);
     } finally {
@@ -264,13 +305,37 @@ export default function AdminOrdersPage() {
                     {/* Files */}
                     {order.files && order.files.length > 0 && (
                       <div>
-                        <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold mb-2">Attached Files</p>
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Attached Customer Files</p>
+                          {(order as any).filesPurgedAfterDelivery || order.orderStatus === "Delivered" ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                              <CheckCircle2 className="h-3 w-3" />
+                              Purged from Cloud Storage (Delivered)
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-zinc-500">
+                              Will be deleted from storage once Delivered
+                            </span>
+                          )}
+                        </div>
                         <div className="flex flex-wrap gap-2">
                           {order.files.map((f, i) => (
                             <div key={i} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/5 text-xs text-zinc-400">
-                              <FileText className="h-3.5 w-3.5" />
+                              <FileText className="h-3.5 w-3.5 text-indigo-400" />
                               <span className="truncate max-w-[200px]">{f.name}</span>
                               <span className="text-zinc-600">({(f.size / 1024).toFixed(0)}KB)</span>
+                              {f.url && order.orderStatus !== "Delivered" ? (
+                                <a
+                                  href={f.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="ml-1 text-[10px] text-indigo-400 hover:underline"
+                                >
+                                  View
+                                </a>
+                              ) : (
+                                <span className="ml-1 text-[10px] text-zinc-600 italic">Deleted</span>
+                              )}
                             </div>
                           ))}
                         </div>

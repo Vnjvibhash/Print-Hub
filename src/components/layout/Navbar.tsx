@@ -17,7 +17,8 @@ import {
   Sun,
   Moon,
   Monitor,
-  Check
+  Check,
+  Sparkles
 } from "lucide-react";
 
 type Theme = "light" | "dark" | "system";
@@ -160,29 +161,38 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full glass-panel border-b border-white/10 shadow-sm backdrop-blur-md">
+    <nav className="sticky top-0 z-50 w-full backdrop-blur-xl bg-white/80 dark:bg-[#07070a]/85 border-b border-zinc-200/80 dark:border-white/[0.08] transition-all duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-17">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center">
-            <Link href="/" className="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 font-bold text-xl tracking-tight">
-              <Printer className="h-6 w-6 animate-pulse-slow" />
-              <span>SUVIR<span className="text-[#0f0f15] dark:text-white"> Printing</span></span>
+            <Link href="/" className="group flex items-center space-x-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+                <Printer className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-black text-lg tracking-tight text-zinc-900 dark:text-white leading-none">
+                  SUVIR<span className="text-indigo-600 dark:text-indigo-400 font-semibold"> Printing</span>
+                </span>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-zinc-400 dark:text-zinc-500 mt-0.5">
+                  Print & Merchandise Studio
+                </span>
+              </div>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
+          <div className="hidden md:flex items-center space-x-1 lg:space-x-2">
             {navLinks.map((link) => {
               const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
               return (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`text-sm font-medium transition-colors hover:text-indigo-600 dark:hover:text-indigo-400 ${
+                  className={`relative px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-150 ${
                     isActive 
-                      ? "text-indigo-600 dark:text-indigo-400" 
-                      : "text-zinc-600 dark:text-zinc-300"
+                      ? "text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 dark:bg-indigo-500/15" 
+                      : "text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100/60 dark:hover:bg-white/[0.04]"
                   }`}
                 >
                   {link.name}
@@ -191,38 +201,48 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* Right side: Theme Toggle + Auth Controls */}
+          {/* Right side: Theme Toggle + Instant CTA + Auth Controls */}
           <div className="hidden md:flex items-center space-x-3">
+            {/* Quick Order CTA */}
+            <Link
+              href="/customizer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold text-zinc-700 dark:text-zinc-200 border border-zinc-200/80 dark:border-white/10 hover:border-indigo-500/30 hover:bg-indigo-500/5 transition shadow-sm"
+            >
+              <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
+              <span>Studio</span>
+            </Link>
+
             {/* Theme Toggle */}
             <ThemeToggle />
 
             {/* Separator */}
-            <div className="w-px h-6 bg-zinc-200 dark:bg-zinc-700" />
+            <div className="w-px h-6 bg-zinc-200 dark:bg-zinc-800" />
 
             {loading ? (
-              <div className="h-8 w-24 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-md" />
+              <div className="h-8 w-24 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-xl" />
             ) : user ? (
               <div className="relative">
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="flex items-center space-x-2 text-sm font-medium text-zinc-700 dark:text-zinc-200 focus:outline-none hover:text-indigo-600 dark:hover:text-indigo-400"
+                  className="flex items-center space-x-2 pl-2 pr-3 py-1.5 rounded-xl border border-zinc-200 dark:border-white/10 bg-zinc-50 dark:bg-white/[0.03] hover:border-indigo-500/40 text-sm font-semibold text-zinc-800 dark:text-zinc-100 transition shadow-sm"
                 >
                   <img
                     src={user.photoURL || `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.uid}`}
                     alt={user.displayName}
-                    className="w-8 h-8 rounded-full border border-indigo-500/20"
+                    className="w-6 h-6 rounded-full border border-indigo-500/30 object-cover"
                   />
-                  <span>{user.displayName}</span>
-                  <ChevronDown className="h-4 w-4" />
+                  <span className="truncate max-w-[120px]">{user.displayName}</span>
+                  <ChevronDown className="h-3.5 w-3.5 text-zinc-400" />
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-xl py-2 z-50 text-zinc-700 dark:text-zinc-200">
-                    <div className="px-4 py-2 border-b border-zinc-100 dark:border-zinc-800">
-                      <p className="text-xs text-zinc-400 uppercase tracking-wider">Signed in as</p>
-                      <p className="text-sm font-semibold truncate">{user.email}</p>
-                      <span className={`mt-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                        user.role === 'admin' ? 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400'
+                  <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-white dark:bg-[#09090f] border border-zinc-200 dark:border-white/10 shadow-2xl shadow-black/20 py-2 z-50 text-zinc-700 dark:text-zinc-200 overflow-hidden">
+                    <div className="px-4 py-2.5 border-b border-zinc-100 dark:border-white/5">
+                      <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">Account</p>
+                      <p className="text-sm font-bold text-zinc-900 dark:text-white truncate mt-0.5">{user.displayName}</p>
+                      <p className="text-xs text-zinc-400 truncate">{user.email}</p>
+                      <span className={`mt-2 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        user.role === 'admin' ? 'bg-amber-500/15 text-amber-300 border border-amber-500/20' : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/20'
                       }`}>
                         {user.role === 'admin' ? <Shield className="h-3 w-3 mr-1" /> : <User className="h-3 w-3 mr-1" />}
                         {user.role === 'admin' ? 'Admin' : 'Customer'}
@@ -232,9 +252,9 @@ export default function Navbar() {
                     <Link
                       href={user.role === "admin" ? "/admin" : "/dashboard"}
                       onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center px-4 py-2 text-sm hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:text-indigo-600 dark:hover:text-indigo-400"
+                      className="flex items-center px-4 py-2.5 text-sm font-medium hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
                     >
-                      <LayoutDashboard className="h-4 w-4 mr-2" />
+                      <LayoutDashboard className="h-4 w-4 mr-2.5 text-indigo-500" />
                       Dashboard
                     </Link>
 
@@ -244,45 +264,45 @@ export default function Navbar() {
                         signOut();
                         router.push("/");
                       }}
-                      className="w-full flex items-center px-4 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-900 hover:text-rose-600 dark:hover:text-rose-400 border-t border-zinc-100 dark:border-zinc-800 mt-1"
+                      className="w-full flex items-center px-4 py-2 text-sm font-medium hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-t border-zinc-100 dark:border-white/5 mt-1 transition"
                     >
-                      <LogOut className="h-4 w-4 mr-2" />
+                      <LogOut className="h-4 w-4 mr-2.5" />
                       Sign Out
                     </button>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2.5">
                 {/* Developer Quick Login Dropdown */}
                 <div className="relative">
                   <button
                     onClick={() => setIsQuickLoginOpen(!isQuickLoginOpen)}
-                    className="flex items-center space-x-1 px-3 py-1.5 rounded-lg border border-indigo-500/20 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-semibold"
+                    className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl border border-indigo-500/20 bg-indigo-500/5 hover:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-bold transition"
                   >
-                    <Lock className="h-3.5 w-3.5 mr-1" />
-                    <span>Quick Login</span>
+                    <Lock className="h-3.5 w-3.5" />
+                    <span>Demo Login</span>
                     <ChevronDown className="h-3 w-3" />
                   </button>
 
                   {isQuickLoginOpen && (
-                    <div className="absolute right-0 mt-2 w-48 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-xl py-2 z-50 text-zinc-700 dark:text-zinc-200">
-                      <div className="px-4 py-1 text-xs text-zinc-400 border-b border-zinc-100 dark:border-zinc-800 mb-1">
-                        Developer Helpers
+                    <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-white dark:bg-[#09090f] border border-zinc-200 dark:border-white/10 shadow-2xl py-2 z-50 text-zinc-700 dark:text-zinc-200">
+                      <div className="px-4 py-1.5 text-[10px] text-zinc-400 uppercase tracking-widest font-bold border-b border-zinc-100 dark:border-white/5 mb-1">
+                        Select Demo Role
                       </div>
                       <button
                         onClick={() => handleQuickLogin("customer")}
-                        className="w-full flex items-center px-4 py-2 text-left text-sm hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:text-indigo-600 dark:hover:text-indigo-400"
+                        className="w-full flex items-center px-4 py-2 text-left text-sm font-medium hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
                       >
                         <User className="h-4 w-4 mr-2 text-emerald-500" />
-                        Login as Customer
+                        Customer Login
                       </button>
                       <button
                         onClick={() => handleQuickLogin("admin")}
-                        className="w-full flex items-center px-4 py-2 text-left text-sm hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:text-indigo-600 dark:hover:text-indigo-400"
+                        className="w-full flex items-center px-4 py-2 text-left text-sm font-medium hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
                       >
-                        <Shield className="h-4 w-4 mr-2 text-rose-500" />
-                        Login as Admin
+                        <Shield className="h-4 w-4 mr-2 text-amber-500" />
+                        Admin Login
                       </button>
                     </div>
                   )}
@@ -290,7 +310,7 @@ export default function Navbar() {
 
                 <Link
                   href="/login"
-                  className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition shadow-sm"
+                  className="px-4 py-1.5 text-xs font-bold rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 transition shadow-lg shadow-indigo-500/20 active:scale-95"
                 >
                   Sign In
                 </Link>
@@ -324,37 +344,66 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950/95 py-3 px-4 space-y-2">
-          {navLinks.map((link) => (
+        <div className="md:hidden border-t border-zinc-200 dark:border-white/10 bg-white/95 dark:bg-[#07070a]/95 backdrop-blur-2xl py-4 px-4 space-y-2 animate-[fadeSlideDown_0.2s_ease-out]">
+          <div className="grid grid-cols-2 gap-2 mb-3">
             <Link
-              key={link.name}
-              href={link.href}
+              href="/customizer"
               onClick={() => setIsOpen(false)}
-              className="block px-3 py-2 rounded-lg text-base font-medium text-zinc-600 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:text-indigo-600 dark:hover:text-indigo-400"
+              className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold"
             >
-              {link.name}
+              <Sparkles className="h-4 w-4" />
+              <span>Design Studio</span>
             </Link>
-          ))}
+            <Link
+              href="/track"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 text-zinc-700 dark:text-zinc-300 text-xs font-bold"
+            >
+              <Printer className="h-4 w-4 text-indigo-500" />
+              <span>Track Order</span>
+            </Link>
+          </div>
+
+          <div className="space-y-1">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  onClick={() => setIsOpen(false)}
+                  className={`block px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
+                    isActive 
+                      ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-bold" 
+                      : "text-zinc-600 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-white/5 hover:text-zinc-900 dark:hover:text-white"
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
+          </div>
           
-          <div className="border-t border-zinc-100 dark:border-zinc-800 pt-3">
+          <div className="border-t border-zinc-100 dark:border-white/5 pt-3">
             {user ? (
               <div className="space-y-2">
-                <div className="flex items-center space-x-3 px-3 py-1.5">
+                <div className="flex items-center space-x-3 px-3 py-2 rounded-xl bg-zinc-50 dark:bg-white/[0.02] border border-zinc-200/60 dark:border-white/5">
                   <img
                     src={user.photoURL || `https://api.dicebear.com/7.x/adventurer/svg?seed=${user.uid}`}
                     alt={user.displayName}
-                    className="w-10 h-10 rounded-full border border-indigo-500/20"
+                    className="w-9 h-9 rounded-full border border-indigo-500/30 object-cover"
                   />
-                  <div>
-                    <p className="font-semibold text-zinc-800 dark:text-zinc-100">{user.displayName}</p>
-                    <p className="text-xs text-zinc-400">{user.email}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-sm text-zinc-900 dark:text-white truncate">{user.displayName}</p>
+                    <p className="text-xs text-zinc-400 truncate">{user.email}</p>
                   </div>
                 </div>
                 <Link
                   href={user.role === "admin" ? "/admin" : "/dashboard"}
                   onClick={() => setIsOpen(false)}
-                  className="block px-3 py-2 rounded-lg text-base font-medium hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:text-indigo-600 dark:hover:text-indigo-400"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold bg-indigo-600 text-white shadow-md hover:bg-indigo-500 transition"
                 >
+                  <LayoutDashboard className="h-4 w-4" />
                   Dashboard ({user.role === "admin" ? "Admin" : "Customer"})
                 </Link>
                 <button
@@ -363,7 +412,7 @@ export default function Navbar() {
                     signOut();
                     router.push("/");
                   }}
-                  className="w-full text-left block px-3 py-2 rounded-lg text-base font-medium hover:bg-rose-50 dark:hover:bg-rose-950/10 text-rose-600 dark:text-rose-400"
+                  className="w-full text-center block py-2 rounded-xl text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition"
                 >
                   Sign Out
                 </button>
@@ -373,7 +422,7 @@ export default function Navbar() {
                 <Link
                   href="/login"
                   onClick={() => setIsOpen(false)}
-                  className="block w-full text-center px-4 py-2 rounded-lg text-base font-semibold bg-indigo-600 text-white hover:bg-indigo-700"
+                  className="block w-full text-center py-2.5 rounded-xl text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-500 shadow-md shadow-indigo-500/20 transition"
                 >
                   Sign In
                 </Link>
@@ -385,22 +434,22 @@ export default function Navbar() {
 
       {/* Mobile Developer Quick Login */}
       {isQuickLoginOpen && !user && (
-        <div className="md:hidden absolute right-4 top-16 w-52 rounded-xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shadow-xl py-2 z-50 text-zinc-700 dark:text-zinc-200">
-          <div className="px-4 py-1.5 text-xs text-zinc-400 border-b border-zinc-100 dark:border-zinc-800 mb-1">
-            Select Role (Mock Account)
+        <div className="md:hidden absolute right-4 top-17 w-52 rounded-2xl bg-white dark:bg-[#09090f] border border-zinc-200 dark:border-white/10 shadow-2xl py-2 z-50 text-zinc-700 dark:text-zinc-200">
+          <div className="px-4 py-1.5 text-[10px] text-zinc-400 uppercase tracking-widest font-bold border-b border-zinc-100 dark:border-white/5 mb-1">
+            Select Demo Role
           </div>
           <button
             onClick={() => handleQuickLogin("customer")}
-            className="w-full flex items-center px-4 py-2 text-left text-sm hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:text-indigo-600 dark:hover:text-indigo-400"
+            className="w-full flex items-center px-4 py-2 text-left text-sm font-medium hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
           >
             <User className="h-4 w-4 mr-2 text-emerald-500" />
             Customer (Jane Doe)
           </button>
           <button
             onClick={() => handleQuickLogin("admin")}
-            className="w-full flex items-center px-4 py-2 text-left text-sm hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:text-indigo-600 dark:hover:text-indigo-400"
+            className="w-full flex items-center px-4 py-2 text-left text-sm font-medium hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
           >
-            <Shield className="h-4 w-4 mr-2 text-rose-500" />
+            <Shield className="h-4 w-4 mr-2 text-amber-500" />
             Admin (Viveka Jee)
           </button>
         </div>

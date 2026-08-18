@@ -138,6 +138,11 @@ function TrackContent() {
                 <span>Receipt total:</span>
                 <span className="font-extrabold text-zinc-800 dark:text-zinc-100">₹{order.priceBreakdown.total.toFixed(2)}</span>
               </div>
+              {order.orderStatus === "Delivered" && (
+                <div className="pt-2 border-t border-zinc-200/50 dark:border-zinc-800 text-[11px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 font-medium">
+                  <span>✓ Uploaded files have been securely deleted from cloud storage upon delivery for your privacy.</span>
+                </div>
+              )}
             </div>
           </div>
 

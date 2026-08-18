@@ -29,6 +29,7 @@ import {
   ref, 
   uploadBytesResumable, 
   getDownloadURL,
+  deleteObject,
   type FirebaseStorage
 } from "firebase/storage";
 import { UserProfile, ServiceItem, ProductItem, Order, CarouselSlide, OfferRecord } from "@/types";
@@ -1168,5 +1169,46 @@ export const storageService = {
         }, 150);
       }
     });
+  },
+
+  // Delete a single file from Firebase Storage or revoke mock URL
+  deleteFile: async (pathOrUrl: string): Promise<void> => {
+    if (!pathOrUrl || pathOrUrl === "#" || pathOrUrl.startsWith("data:") || pathOrUrl.includes("unsplash.com")) {
+      return;
+    }
+
+    if (isFirebaseEnabled && firebaseStorage) {
+      try {
+        const fileRef = ref(firebaseStorage, pathOrUrl);
+        await deleteObject(fileRef);
+      } catch (err: any) {
+        // If file was already removed or invalid ref, log warning without throwing
+        console.warn(`[Storage] Non-critical warning deleting file (${pathOrUrl}):`, err?.message || err);
+      }
+    } else if (typeof window !== "undefined" && pathOrUrl.startsWith("blob:")) {
+      try {
+        URL.revokeObjectURL(pathOrUrl);
+      } catch {}
+    }
+  },
+
+  // Automatically delete all uploaded PDFs and images associated with an order once Delivered
+  deleteOrderFiles: async (order: Order): Promise<void> => {
+    if (!order) return;
+    const deletePromises: Promise<void>[] = [];
+
+    if (Array.isArray(order.files)) {
+      order.files.forEach((f) => {
+        if (f.url) {
+          deletePromises.push(storageService.deleteFile(f.url));
+        }
+      });
+    }
+
+    if (order.specifications?.customImageUrl) {
+      deletePromises.push(storageService.deleteFile(order.specifications.customImageUrl));
+    }
+
+    await Promise.allSettled(deletePromises);
   }
 };

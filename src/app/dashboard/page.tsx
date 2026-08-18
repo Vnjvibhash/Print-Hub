@@ -224,6 +224,11 @@ export default function CustomerDashboard() {
                           <p className="text-[11px] text-zinc-400 leading-none">
                             Placed on {new Date(ord.createdAt).toLocaleDateString()} • Qty: {ord.quantity} • Total: ₹{ord.priceBreakdown.total.toFixed(2)}
                           </p>
+                          {ord.orderStatus === "Delivered" && (
+                            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+                              ✓ Uploaded files have been purged from storage upon delivery
+                            </p>
+                          )}
                         </div>
 
                         <div className="flex items-center space-x-2 md:self-center">
