@@ -44,10 +44,16 @@ export interface ServiceItem {
 
 
 export interface SpecificationOptions {
-  paperSize?: 'A4' | 'A3';
-  colorMode?: 'bw' | 'color';
+  paperSize?: 'A4' | 'A3' | 'A5' | 'B5';
+  colorMode?: 'bw' | 'color' | 'partial';
   sides?: 'single' | 'double';
-  binding?: 'none' | 'spiral' | 'lamination';
+  binding?: 'none' | 'spiral' | 'lamination' | string;
+  bindingType?: string;
+  paperGsm?: number;
+  coverType?: string;
+  orientation?: 'portrait' | 'landscape';
+  documentType?: string;
+  spineWidthMm?: number;
   pages?: number;
   copies?: number;
   size?: string;

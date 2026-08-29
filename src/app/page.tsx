@@ -19,7 +19,10 @@ import {
   TrendingUp, 
   Star,
   Layers,
-  Sparkles
+  Sparkles,
+  BookOpen,
+  GraduationCap,
+  Calculator
 } from "lucide-react";
 
 const LOCAL_TESTIMONIALS: ReviewRecord[] = [
@@ -106,10 +109,12 @@ export default function Home() {
   };
 
   const services = [
-    { id: "a4-print", title: "A4 Document Printing", desc: "Color & B/W, single or double-sided. Perfect for reports, resumes, and study materials.", icon: Printer, price: "₹2/page", tag: "Most Popular", color: "indigo" },
-    { id: "visiting-cards", title: "Visiting & Business Cards", desc: "Premium 350GSM cardstock business cards with custom finishes and designs.", icon: Layers, price: "₹1.50/card", tag: "Corporate", color: "emerald" },
-    { id: "tshirt-print", title: "Custom T-Shirt Printing", desc: "High-quality DTF printing on soft, breathable combed cotton apparel.", icon: Sparkles, price: "₹350/unit", tag: "Trending", color: "purple" },
-    { id: "mug-print", title: "Customized Coffee Mugs", desc: "Archival print ceramic mugs and heat-sensitive color-changing magic mugs.", icon: ShoppingBag, price: "₹150/unit", tag: "Hot Gift", color: "amber" }
+    { id: "a4-print", title: "Document & PDF Printing", desc: "A4/A3 B&W and high-speed color laser printing for reports, legal docs, manuals and notes.", icon: Printer, price: "from ₹1.20/pg", tag: "Fastest Turnaround", href: "/pricecalculator" },
+    { id: "book-print", title: "Book & Novel Printing", desc: "Softcover perfect bound books with wrap-around full color laminated covers.", icon: BookOpen, price: "from ₹80/copy", tag: "Authors & Publishers", href: "/pricecalculator" },
+    { id: "thesis-print", title: "Thesis Hardbound Binding", desc: "Official academic leatherette hardbound thesis with gold foil letter embossing.", icon: GraduationCap, price: "from ₹250/copy", tag: "PhD & University", href: "/pricecalculator" },
+    { id: "visiting-cards", title: "Visiting Cards & Stationery", desc: "Premium 350 GSM matte/gloss cards, letterheads, envelopes and corporate folders.", icon: Layers, price: "from ₹1.50/card", tag: "B2B Corporate", href: "/services" },
+    { id: "tshirt-print", title: "Custom DTF Apparel", desc: "Vibrant direct-to-film printing on 100% combed cotton T-shirts and hoodies.", icon: Sparkles, price: "from ₹350/unit", tag: "Merch Studio", href: "/customizer?type=tshirt" },
+    { id: "mug-print", title: "Customized Photo Gifts", desc: "Ceramic coffee mugs, heat-reactive magic mugs, pillows, frames and keychains.", icon: ShoppingBag, price: "from ₹150/unit", tag: "Personalized", href: "/customizer?type=mug" }
   ];
 
   const workflowSteps = [
@@ -325,7 +330,7 @@ export default function Home() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {services.map((svc) => {
             const IconComponent = svc.icon;
@@ -357,10 +362,10 @@ export default function Home() {
                 
                 <div className="mt-8 pt-4 border-t border-zinc-200/60 dark:border-white/5 flex items-center justify-between">
                   <Link
-                    href={svc.id.includes("print") && !svc.id.includes("mug") ? "/services" : `/customizer?type=${svc.id.includes("mug") ? "mug" : "tshirt"}`}
+                    href={svc.href || "/services"}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 group-hover:translate-x-1 transition-transform"
                   >
-                    <span>Configure Order</span>
+                    <span>Instant Calculator & Order</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </Link>
                   <span className="w-2 h-2 rounded-full bg-emerald-500" title="In Stock / Ready" />
@@ -410,18 +415,19 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="pt-4 flex items-center gap-4">
+              <div className="pt-4 flex flex-wrap items-center gap-3">
                 <Link
-                  href="/pricing"
-                  className="px-6 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition shadow-lg shadow-indigo-500/20 active:scale-95"
+                  href="/pricecalculator"
+                  className="px-6 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm transition shadow-lg shadow-indigo-500/25 active:scale-95 inline-flex items-center gap-2"
                 >
-                  View Full Pricing Chart
+                  <Calculator className="h-4 w-4" />
+                  <span>Launch Advanced Calculator</span>
                 </Link>
                 <Link
-                  href="/services"
-                  className="px-6 py-3 rounded-2xl border border-zinc-200 dark:border-white/10 hover:bg-zinc-100 dark:hover:bg-white/5 text-zinc-700 dark:text-zinc-200 font-bold text-sm transition"
+                  href="/pricing"
+                  className="px-6 py-3.5 rounded-2xl border border-zinc-200 dark:border-white/10 hover:bg-zinc-100 dark:hover:bg-white/5 text-zinc-700 dark:text-zinc-200 font-bold text-sm transition"
                 >
-                  All Services
+                  Rate Card
                 </Link>
               </div>
             </div>

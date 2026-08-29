@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { calculatePricing } from "@/lib/pricing";
+import { calculatePricing, calculateDetailedPrintingQuote } from "@/lib/pricing";
 import { dbService } from "@/lib/firebase";
 import { generateInvoicePDF } from "@/lib/invoice";
 import { Order, SpecificationOptions, PriceBreakdown, OfferRecord } from "@/types";
@@ -161,8 +161,43 @@ function CheckoutContent() {
 
   useEffect(() => {
     if (!serviceId) return;
-    const price = calculatePricing(serviceId, quantity, specs, true, appliedCoupon);
-    setPriceBreakdown(price);
+
+    if (specs.paperGsm || specs.bindingType || specs.coverType) {
+      const detailed = calculateDetailedPrintingQuote({
+        pages: specs.pages || 1,
+        copies: quantity,
+        paperSize: specs.paperSize as any,
+        paperGsm: specs.paperGsm,
+        colorMode: specs.colorMode as any,
+        sides: specs.sides as any,
+        bindingType: specs.bindingType,
+        coverType: specs.coverType,
+      });
+
+      let discount = detailed.discountAmount;
+      if (appliedCoupon) {
+        if (appliedCoupon.discountType === "percentage") {
+          discount += (detailed.netSubtotal * (appliedCoupon.discountValue / 100));
+        } else {
+          discount += appliedCoupon.discountValue;
+        }
+      }
+
+      const finalSubtotal = Math.max(0, detailed.grossSubtotal - discount);
+      const finalGst = Math.round(finalSubtotal * 0.18 * 100) / 100;
+      const finalTotal = Math.round((finalSubtotal + finalGst) * 100) / 100;
+
+      setPriceBreakdown({
+        base: Math.round(detailed.printCostPerCopy * quantity * 100) / 100,
+        optionsPrice: Math.round((detailed.paperCostPerCopy + detailed.bindingCostPerCopy + detailed.coverCostPerCopy) * quantity * 100) / 100,
+        subtotal: finalSubtotal,
+        gst: finalGst,
+        total: finalTotal,
+      });
+    } else {
+      const price = calculatePricing(serviceId, quantity, specs, true, appliedCoupon);
+      setPriceBreakdown(price);
+    }
   }, [serviceId, quantity, specs, appliedCoupon]);
 
   // Autocomplete if user is authenticated
@@ -581,10 +616,16 @@ function CheckoutContent() {
                     <span className="font-semibold">{specs.paperSize}</span>
                   </div>
                 )}
+                {specs.paperGsm && (
+                  <div className="flex justify-between">
+                    <span className="text-zinc-500">Paper GSM:</span>
+                    <span className="font-semibold text-indigo-500">{specs.paperGsm} GSM</span>
+                  </div>
+                )}
                 {specs.colorMode && (
                   <div className="flex justify-between">
                     <span className="text-zinc-500">Ink Format:</span>
-                    <span className="font-semibold">{specs.colorMode === "color" ? "Full Color" : "B/W"}</span>
+                    <span className="font-semibold">{specs.colorMode === "color" ? "Full Color" : specs.colorMode === "partial" ? "Partial Color" : "B/W Laser"}</span>
                   </div>
                 )}
                 {specs.sides && (
@@ -595,8 +636,26 @@ function CheckoutContent() {
                 )}
                 {specs.binding && specs.binding !== "none" && (
                   <div className="flex justify-between">
-                    <span className="text-zinc-500">Binding/Finishing:</span>
-                    <span className="font-semibold capitalize text-indigo-500">{specs.binding}</span>
+                    <span className="text-zinc-500">Binding:</span>
+                    <span className="font-semibold capitalize text-indigo-500">{specs.binding.replace(/_/g, " ")}</span>
+                  </div>
+                )}
+                {specs.coverType && specs.coverType !== "none" && (
+                  <div className="flex justify-between">
+                    <span className="text-zinc-500">Cover:</span>
+                    <span className="font-semibold capitalize">{specs.coverType.replace(/_/g, " ")}</span>
+                  </div>
+                )}
+                {specs.spineWidthMm && specs.spineWidthMm > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-zinc-500">Spine Thickness:</span>
+                    <span className="font-semibold text-emerald-500">{specs.spineWidthMm} mm</span>
+                  </div>
+                )}
+                {specs.pages && (
+                  <div className="flex justify-between">
+                    <span className="text-zinc-500">Pages per Copy:</span>
+                    <span className="font-semibold">{specs.pages} pages</span>
                   </div>
                 )}
                 {specs.customText && (

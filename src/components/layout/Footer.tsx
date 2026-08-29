@@ -18,14 +18,16 @@ export default function Footer() {
   };
 
   const servicesLinks = [
+    { name: "Online Price Calculator", href: "/pricecalculator" },
     { name: "Document Printing (A4/A3)", href: "/services" },
+    { name: "Book & Novel Printing", href: "/pricecalculator" },
+    { name: "Thesis & Hardbound Binding", href: "/pricecalculator" },
     { name: "Custom T-Shirts & Apparel", href: "/customizer?type=tshirt" },
-    { name: "Ceramic & Magic Mugs", href: "/customizer?type=mug" },
     { name: "Business Cards & Stationery", href: "/services" },
-    { name: "Custom Keychains & Frames", href: "/customizer?type=keychain" },
   ];
 
   const supportLinks = [
+    { name: "Instant Price Calculator", href: "/pricecalculator" },
     { name: "Track Live Order", href: "/track" },
     { name: "Transparent Pricing Guide", href: "/pricing" },
     { name: "Help Center & FAQs", href: "/faq" },

@@ -494,16 +494,221 @@ export function calculatePricing(
   };
 }
 
-// ── Async Firestore loaders ─────────────────────────────────────────────────
-// These pull live data from Firestore and write to localStorage so all
-// subsequent synchronous calls to getAdminRates / getServiceTiers /
-// getActiveOffers automatically see up-to-date values.
+// ── Printster-Style Advanced Price Calculator Engine ─────────────────────────
+
+export interface PaperGsmItem {
+  gsm: number;
+  name: string;
+  desc: string;
+  multiplier: number; // cost multiplier relative to 70 GSM
+  caliperMm: number; // sheet thickness per leaf in mm
+  bestFor: string;
+}
+
+export const PRINTSTER_PAPER_GSM: PaperGsmItem[] = [
+  { gsm: 70, name: "70 GSM Standard Copier", desc: "Economical multipurpose paper, perfect for study notes & daily docs", multiplier: 1.0, caliperMm: 0.088, bestFor: "Study Notes, Worksheets" },
+  { gsm: 75, name: "75 GSM Premium Copier", desc: "Crisp white, high-contrast laser paper for professional reading", multiplier: 1.15, caliperMm: 0.095, bestFor: "Office Reports, Manuals" },
+  { gsm: 85, name: "85 GSM Executive Bond", desc: "Smooth heavy bond paper, excellent opacity for double-sided prints", multiplier: 1.35, caliperMm: 0.110, bestFor: "Thesis, Legal & Formal Letters" },
+  { gsm: 100, name: "100 GSM Super Smooth", desc: "Ultra-bright premium presentation paper for high-impact graphics", multiplier: 1.60, caliperMm: 0.125, bestFor: "Client Proposals, Portfolios" },
+  { gsm: 130, name: "130 GSM Gloss Art Paper", desc: "Silky gloss coating for rich photo contrast and vibrant magazines", multiplier: 2.10, caliperMm: 0.135, bestFor: "Flyers, Magazines, Photo Pages" },
+  { gsm: 170, name: "170 GSM Matte Art Paper", desc: "Non-glare luxury finish, sturdy for catalog booklets and brochures", multiplier: 2.60, caliperMm: 0.170, bestFor: "Art Catalogs, Booklets" },
+  { gsm: 250, name: "250 GSM Heavy Cardstock", desc: "Durable cardstock for certificates, book divider tabs & greeting cards", multiplier: 3.50, caliperMm: 0.250, bestFor: "Certificates, Menu Inserts" },
+  { gsm: 300, name: "300 GSM Velvet Card", desc: "Ultra-thick premium ivory board for business cards and book covers", multiplier: 4.20, caliperMm: 0.320, bestFor: "Book Covers, Business Cards" },
+  { gsm: 350, name: "350 GSM Royal Velvet", desc: "Supreme rigid board with rich tactile touch for high-end corporate stationery", multiplier: 5.00, caliperMm: 0.380, bestFor: "Luxury Cards, Premium Covers" },
+];
+
+export interface PrintsterBindingItem {
+  id: string;
+  name: string;
+  desc: string;
+  basePrice: number;
+  maxPages: number;
+  coverIncluded: boolean;
+  extraSpineMm: number;
+}
+
+export const PRINTSTER_BINDINGS: PrintsterBindingItem[] = [
+  { id: "none", name: "No Binding / Loose Sheets", desc: "Neatly stacked and shrink-wrapped loose printed leaves", basePrice: 0, maxPages: 2500, coverIncluded: false, extraSpineMm: 0 },
+  { id: "staple_corner", name: "Corner Staple", desc: "Single top-left heavy gauge steel staple", basePrice: 5, maxPages: 80, coverIncluded: false, extraSpineMm: 0 },
+  { id: "staple_side", name: "Double Side Staple", desc: "Dual edge staples along left margin with binding tape finish", basePrice: 15, maxPages: 120, coverIncluded: false, extraSpineMm: 0 },
+  { id: "staple_booklet", name: "Center Staple Booklet", desc: "Folded & saddle-stitched center staple booklet format", basePrice: 20, maxPages: 64, coverIncluded: false, extraSpineMm: 0 },
+  { id: "spiral_plastic", name: "Plastic Coil Spiral Binding", desc: "360° lay-flat plastic spiral coil with clear PVC front + dark back cover", basePrice: 35, maxPages: 500, coverIncluded: true, extraSpineMm: 0.5 },
+  { id: "wiro_metal", name: "Twin-Loop Metal Wiro", desc: "Executive twin-loop wire binding with frosted crystal covers", basePrice: 50, maxPages: 300, coverIncluded: true, extraSpineMm: 0.6 },
+  { id: "softcover_perfect", name: "Softcover Perfect Binding", desc: "Glued spine book with 300 GSM full-color wrap-around cover", basePrice: 80, maxPages: 800, coverIncluded: true, extraSpineMm: 1.2 },
+  { id: "hardcover_gold", name: "Thesis Hardcover (Golden Foil)", desc: "Formal rigid leatherette hardbound book with custom gold foil letter embossing", basePrice: 250, maxPages: 1000, coverIncluded: true, extraSpineMm: 4.5 },
+  { id: "thermal_lamination", name: "All-Page Thermal Lamination", desc: "125-micron water-resistant thermal protective encapsulation on all sheets", basePrice: 15, maxPages: 50, coverIncluded: false, extraSpineMm: 0.2 },
+];
+
+export interface PrintsterCoverItem {
+  id: string;
+  name: string;
+  price: number;
+}
+
+export const PRINTSTER_COVERS: PrintsterCoverItem[] = [
+  { id: "none", name: "No Extra Cover", price: 0 },
+  { id: "pvc_transparent", name: "Transparent PVC Front + Opaque Back (₹20)", price: 20 },
+  { id: "300gsm_card", name: "300 GSM Full Color Card Cover (₹35)", price: 35 },
+  { id: "gloss_laminated", name: "300 GSM Gloss Laminated Custom Cover (₹50)", price: 50 },
+  { id: "matte_laminated", name: "300 GSM Velvet Matte Laminated Cover (₹55)", price: 55 },
+  { id: "hardcover_embossed", name: "Premium Hardboard Cover with Gold Lettering (₹250)", price: 250 },
+];
+
+export interface DetailedQuoteResult {
+  pages: number;
+  copies: number;
+  paperSize: string;
+  paperGsm: number;
+  colorMode: string;
+  sides: string;
+  bindingType: string;
+  coverType: string;
+  sheetsPerCopy: number;
+  totalSheets: number;
+  spineWidthMm: number;
+  printCostPerCopy: number;
+  paperCostPerCopy: number;
+  bindingCostPerCopy: number;
+  coverCostPerCopy: number;
+  costPerCopy: number;
+  grossSubtotal: number;
+  bulkDiscountPercent: number;
+  discountAmount: number;
+  netSubtotal: number;
+  gstRatePercent: number;
+  gstAmount: number;
+  totalAmount: number;
+  effectivePricePerPage: number;
+}
 
 /**
- * Load admin-saved pricing (tieredPricing + rates + taxRate) from Firestore
- * into localStorage so getAdminRates() / getServiceTiers() return live data.
- * Safe to call on every page mount; resolves instantly when Firebase is off.
+ * Calculates a complete Printster-style detailed printing and book-binding quote.
  */
+export function calculateDetailedPrintingQuote(options: {
+  pages: number;
+  copies: number;
+  paperSize?: 'A4' | 'A3' | 'A5' | 'B5';
+  paperGsm?: number;
+  colorMode?: 'bw' | 'color' | 'partial';
+  sides?: 'single' | 'double';
+  bindingType?: string;
+  coverType?: string;
+}): DetailedQuoteResult {
+  const pages = Math.max(1, options.pages || 1);
+  const copies = Math.max(1, options.copies || 1);
+  const paperSize = options.paperSize || 'A4';
+  const paperGsm = options.paperGsm || 70;
+  const colorMode = options.colorMode || 'bw';
+  const sides = options.sides || 'single';
+  const bindingType = options.bindingType || 'none';
+  const coverType = options.coverType || 'none';
+
+  // 1. Sheets computation
+  const sheetsPerCopy = sides === 'double' ? Math.ceil(pages / 2) : pages;
+  const totalSheets = sheetsPerCopy * copies;
+
+  // 2. Paper GSM & Caliper selection
+  const gsmItem = PRINTSTER_PAPER_GSM.find((g) => g.gsm === paperGsm) || PRINTSTER_PAPER_GSM[0];
+  const bindingItem = PRINTSTER_BINDINGS.find((b) => b.id === bindingType) || PRINTSTER_BINDINGS[0];
+  const coverItem = PRINTSTER_COVERS.find((c) => c.id === coverType) || PRINTSTER_COVERS[0];
+
+  // 3. Spine Width in mm (Printster spine width calculator algorithm)
+  const rawPaperSpine = sheetsPerCopy * gsmItem.caliperMm;
+  const calculatedSpine = Math.round((rawPaperSpine + (bindingItem.extraSpineMm || 0)) * 10) / 10;
+  const spineWidthMm = Math.max(0.5, calculatedSpine);
+
+  // 4. Base Print Rate per page
+  let basePrintRatePerPage = 1.20; // base B&W A4
+  if (paperSize === 'A3') basePrintRatePerPage *= 2.0;
+  if (paperSize === 'A5') basePrintRatePerPage *= 0.75;
+  if (paperSize === 'B5') basePrintRatePerPage *= 0.85;
+
+  if (colorMode === 'color') {
+    basePrintRatePerPage = paperSize === 'A3' ? 18.0 : paperSize === 'A5' ? 6.0 : 8.5;
+  } else if (colorMode === 'partial') {
+    basePrintRatePerPage = paperSize === 'A3' ? 10.0 : paperSize === 'A5' ? 3.5 : 5.0;
+  }
+
+  // Double side discount per impression
+  const printCostPerCopy = sides === 'double'
+    ? pages * (basePrintRatePerPage * 0.9)
+    : pages * basePrintRatePerPage;
+
+  // 5. Paper Material Cost per sheet
+  let baseSheetCost = 0.50 * gsmItem.multiplier;
+  if (paperSize === 'A3') baseSheetCost *= 2.1;
+  if (paperSize === 'A5') baseSheetCost *= 0.6;
+  if (paperSize === 'B5') baseSheetCost *= 0.75;
+  const paperCostPerCopy = sheetsPerCopy * baseSheetCost;
+
+  // 6. Binding Cost per copy
+  let bindingCostPerCopy = bindingItem.basePrice;
+  if (bindingType === 'thermal_lamination') {
+    bindingCostPerCopy = sheetsPerCopy * (paperSize === 'A3' ? 25 : 12);
+  }
+
+  // 7. Cover Cost per copy
+  const coverCostPerCopy = coverItem.price;
+
+  // 8. Cost per copy & Gross Subtotal
+  const costPerCopy = Math.round((printCostPerCopy + paperCostPerCopy + bindingCostPerCopy + coverCostPerCopy) * 100) / 100;
+  const grossSubtotal = Math.round(costPerCopy * copies * 100) / 100;
+
+  // 9. Tiered Volume Discount (Printster-style volume discounts)
+  let bulkDiscountPercent = 0;
+  if (copies >= 500 || totalSheets >= 5000) {
+    bulkDiscountPercent = 35;
+  } else if (copies >= 250 || totalSheets >= 2500) {
+    bulkDiscountPercent = 25;
+  } else if (copies >= 100 || totalSheets >= 1000) {
+    bulkDiscountPercent = 20;
+  } else if (copies >= 50 || totalSheets >= 500) {
+    bulkDiscountPercent = 15;
+  } else if (copies >= 25 || totalSheets >= 250) {
+    bulkDiscountPercent = 10;
+  } else if (copies >= 10 || totalSheets >= 100) {
+    bulkDiscountPercent = 5;
+  }
+
+  const discountAmount = Math.round((grossSubtotal * (bulkDiscountPercent / 100)) * 100) / 100;
+  const netSubtotal = Math.round((grossSubtotal - discountAmount) * 100) / 100;
+
+  // 10. GST (18% standard across printing and stationery services)
+  const gstRatePercent = 18;
+  const gstAmount = Math.round((netSubtotal * (gstRatePercent / 100)) * 100) / 100;
+  const totalAmount = Math.round((netSubtotal + gstAmount) * 100) / 100;
+
+  const effectivePricePerPage = Math.round((totalAmount / (pages * copies)) * 100) / 100;
+
+  return {
+    pages,
+    copies,
+    paperSize,
+    paperGsm,
+    colorMode,
+    sides,
+    bindingType,
+    coverType,
+    sheetsPerCopy,
+    totalSheets,
+    spineWidthMm,
+    printCostPerCopy,
+    paperCostPerCopy,
+    bindingCostPerCopy,
+    coverCostPerCopy,
+    costPerCopy,
+    grossSubtotal,
+    bulkDiscountPercent,
+    discountAmount,
+    netSubtotal,
+    gstRatePercent,
+    gstAmount,
+    totalAmount,
+    effectivePricePerPage,
+  };
+}
+
+// ── Async Firestore loaders ─────────────────────────────────────────────────
 export async function loadPricingFromFirestore(): Promise<void> {
   if (typeof window === "undefined") return;
   try {
@@ -524,11 +729,6 @@ export async function loadPricingFromFirestore(): Promise<void> {
   }
 }
 
-/**
- * Load all offers from Firestore into localStorage (`printhub_db_offers`)
- * so getActiveOffers() returns Firestore-backed data.
- * Safe to call on every page mount.
- */
 export async function loadOffersFromFirestore(): Promise<void> {
   if (typeof window === "undefined") return;
   try {

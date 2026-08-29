@@ -18,7 +18,8 @@ import {
   Moon,
   Monitor,
   Check,
-  Sparkles
+  Sparkles,
+  Calculator,
 } from "lucide-react";
 
 type Theme = "light" | "dark" | "system";
@@ -153,6 +154,7 @@ export default function Navbar() {
 
   const navLinks = [
     { name: "Home", href: "/" },
+    { name: "Price Calculator", href: "/pricecalculator", badge: "Live" },
     { name: "Services", href: "/services" },
     { name: "Custom Merch", href: "/customizer" },
     { name: "Pricing", href: "/pricing" },
@@ -182,20 +184,25 @@ export default function Navbar() {
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-1 lg:space-x-2">
+          <div className="hidden md:flex items-center space-x-1 lg:space-x-1.5">
             {navLinks.map((link) => {
               const isActive = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href));
               return (
                 <Link
                   key={link.name}
                   href={link.href}
-                  className={`relative px-3.5 py-2 rounded-xl text-sm font-semibold transition-all duration-150 ${
+                  className={`relative inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs lg:text-sm font-semibold transition-all duration-150 ${
                     isActive 
                       ? "text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 dark:bg-indigo-500/15" 
                       : "text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100/60 dark:hover:bg-white/[0.04]"
                   }`}
                 >
-                  {link.name}
+                  <span>{link.name}</span>
+                  {link.badge && (
+                    <span className="px-1.5 py-0.2 rounded-full text-[9px] font-bold bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
+                      {link.badge}
+                    </span>
+                  )}
                 </Link>
               );
             })}
@@ -345,22 +352,30 @@ export default function Navbar() {
       {/* Mobile Menu */}
       {isOpen && (
         <div className="md:hidden border-t border-zinc-200 dark:border-white/10 bg-white/95 dark:bg-[#07070a]/95 backdrop-blur-2xl py-4 px-4 space-y-2 animate-[fadeSlideDown_0.2s_ease-out]">
-          <div className="grid grid-cols-2 gap-2 mb-3">
+          <div className="grid grid-cols-3 gap-2 mb-3">
+            <Link
+              href="/pricecalculator"
+              onClick={() => setIsOpen(false)}
+              className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-[11px] font-bold text-center"
+            >
+              <Calculator className="h-4 w-4" />
+              <span>Calculator</span>
+            </Link>
             <Link
               href="/customizer"
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-xs font-bold"
+              className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 text-zinc-700 dark:text-zinc-300 text-[11px] font-bold text-center"
             >
-              <Sparkles className="h-4 w-4" />
-              <span>Design Studio</span>
+              <Sparkles className="h-4 w-4 text-indigo-500" />
+              <span>Studio</span>
             </Link>
             <Link
               href="/track"
               onClick={() => setIsOpen(false)}
-              className="flex items-center justify-center gap-2 p-2.5 rounded-xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 text-zinc-700 dark:text-zinc-300 text-xs font-bold"
+              className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl bg-zinc-100 dark:bg-white/5 border border-zinc-200 dark:border-white/5 text-zinc-700 dark:text-zinc-300 text-[11px] font-bold text-center"
             >
               <Printer className="h-4 w-4 text-indigo-500" />
-              <span>Track Order</span>
+              <span>Track</span>
             </Link>
           </div>
 
