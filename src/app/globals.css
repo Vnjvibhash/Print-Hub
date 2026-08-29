@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Scoped dark variant only active when explicit .dark class is on ancestor */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-brand-50: #f5f3ff;
   --color-brand-100: #ede9fe;
@@ -28,6 +31,7 @@
 
 /* Enforce Crisp Light Theme Defaults */
 :root, :root.light {
+  color-scheme: light;
   --background: #fafafc;
   --foreground: #0f0f15;
   --card-bg: rgba(255, 255, 255, 0.9);

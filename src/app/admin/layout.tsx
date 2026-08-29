@@ -152,7 +152,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div 
-      className="min-h-screen flex bg-[#07070a] text-zinc-100"
+      className="min-h-screen flex bg-[#07070a] text-zinc-100 dark"
       style={{ ["--sidebar-width" as string]: sidebarWidth } as React.CSSProperties}
     >
       {/* Desktop Sidebar */}

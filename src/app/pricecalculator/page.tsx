@@ -179,11 +179,11 @@ export default function PriceCalculatorPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-50 dark:bg-[#07070a] text-zinc-900 dark:text-zinc-100 transition-colors">
+    <div className="min-h-screen flex flex-col bg-zinc-50 text-zinc-900 transition-colors">
       <Navbar />
 
       {/* Top Banner / Header */}
-      <section className="border-b border-zinc-200/80 dark:border-white/[0.08] bg-white dark:bg-[#090912] pt-12 pb-10">
+      <section className="border-b border-zinc-200/80 bg-white pt-12 pb-10">
         <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>

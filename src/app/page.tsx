@@ -252,7 +252,7 @@ export default function Home() {
   }, [estimatorServiceId, copies, pages, binding, isHydrated, settingsVersion]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-[#07070a] text-zinc-900 dark:text-zinc-100 transition-colors">
+    <div className="min-h-screen flex flex-col bg-[#fafafc] text-zinc-900 transition-colors">
       <Navbar />
       
       {/* Hero Carousel */}

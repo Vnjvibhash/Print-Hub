@@ -1,33 +1,33 @@
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut as firebaseSignOut, 
-  GoogleAuthProvider, 
-  signInWithPopup, 
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  GoogleAuthProvider,
+  signInWithPopup,
   onAuthStateChanged as firebaseOnAuthStateChanged,
   User as FirebaseUser,
   type Auth
 } from "firebase/auth";
-import { 
-  getFirestore, 
-  collection, 
-  doc, 
-  getDoc, 
-  getDocs, 
-  setDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  query,
   where,
   type Firestore
 } from "firebase/firestore";
-import { 
-  getStorage, 
-  ref, 
-  uploadBytesResumable, 
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
   getDownloadURL,
   deleteObject,
   type FirebaseStorage
@@ -45,8 +45,8 @@ const firebaseConfig = {
 };
 
 const isFirebaseConfigured = !!(
-  firebaseConfig.apiKey && 
-  firebaseConfig.projectId && 
+  firebaseConfig.apiKey &&
+  firebaseConfig.projectId &&
   firebaseConfig.authDomain
 );
 
@@ -375,7 +375,7 @@ const setLocalData = (key: string, data: any) => {
 
 const initLocalDatabase = () => {
   if (typeof window === "undefined") return;
-  
+
   const existingServices = getLocalData("services");
   if (!existingServices) {
     setLocalData("services", DEFAULT_SERVICES);
@@ -412,7 +412,7 @@ const initLocalDatabase = () => {
       contactEmail: "support@suvirprinting.com"
     });
   }
-  
+
   // Prepopulate standard accounts
   if (!getLocalData("users")) {
     const defaultUsers: Record<string, UserProfile> = {
@@ -598,7 +598,7 @@ export const authService = {
     } else {
       // Mock Signup
       const usersMap = getLocalData("users") || {};
-      
+
       // Check if already exists
       const emailExists = Object.values(usersMap).some((u: any) => u.email.toLowerCase() === email.toLowerCase());
       if (emailExists) throw new Error("Email already in use.");
@@ -614,10 +614,10 @@ export const authService = {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
-      
+
       usersMap[newUid] = profile;
       setLocalData("users", usersMap);
-      
+
       sessionStorage.setItem("printhub_logged_in_uid", newUid);
       window.dispatchEvent(new Event("printhub_auth_event"));
       return profile;
@@ -679,7 +679,7 @@ export const authService = {
         const userCred = await signInWithPopup(firebaseAuth!, provider);
         const docRef = doc(firebaseDb!, "users", userCred.user.uid);
         const docSnap = await getDoc(docRef);
-        
+
         if (docSnap.exists()) {
           const existingProfile = docSnap.data() as UserProfile;
           // Auto-promote admin emails if not already admin
@@ -715,7 +715,7 @@ export const authService = {
       // Mock Google Login - Log in the mock customer directly
       const usersMap = getLocalData("users") || {};
       const customer = usersMap["user-customer"];
-      
+
       sessionStorage.setItem("printhub_logged_in_uid", customer.uid);
       window.dispatchEvent(new Event("printhub_auth_event"));
       return customer;
@@ -949,7 +949,7 @@ export const dbService = {
       if (docSnap.exists()) {
         return ({ id: docSnap.id, ...docSnap.data() } as T);
       }
-      
+
       // Fallback: Query by custom 'id' field for legacy/mismatched documents
       const q = query(collection(firebaseDb!, collName), where("id", "==", docId));
       const querySnapshot = await getDocs(q);
@@ -986,7 +986,7 @@ export const dbService = {
       const collectionData = getLocalData(collName) || [];
       const newId = (dataWithId && dataWithId.id) || `doc-${Math.random().toString(36).substring(2, 11).toUpperCase()}`;
       const record = { id: newId, ...documentData } as unknown as T;
-      
+
       collectionData.push(record);
       setLocalData(collName, collectionData);
       return record;
@@ -1067,7 +1067,7 @@ export const dbService = {
     if (isFirebaseEnabled) {
       try {
         await deleteDoc(doc(firebaseDb!, collName, docId));
-        
+
         // Also check if there exists a legacy/mismatched document to delete
         const q = query(collection(firebaseDb!, collName), where("id", "==", docId));
         const querySnapshot = await getDocs(q);
@@ -1125,8 +1125,8 @@ export const dbService = {
 // 3. STORAGE SERVICES (FILE UPLOAD)
 export const storageService = {
   uploadFile: (
-    file: File, 
-    path: string, 
+    file: File,
+    path: string,
     onProgress: (progress: number) => void
   ): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -1154,10 +1154,10 @@ export const storageService = {
         const interval = setInterval(() => {
           progress += 10;
           onProgress(progress);
-          
+
           if (progress >= 100) {
             clearInterval(interval);
-            
+
             // Create a fake URL using URL.createObjectURL or standard visual asset
             try {
               const fileUrl = URL.createObjectURL(file);
@@ -1188,7 +1188,7 @@ export const storageService = {
     } else if (typeof window !== "undefined" && pathOrUrl.startsWith("blob:")) {
       try {
         URL.revokeObjectURL(pathOrUrl);
-      } catch {}
+      } catch { }
     }
   },
 
