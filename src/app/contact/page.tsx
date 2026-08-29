@@ -25,7 +25,7 @@ export default function ContactPage() {
     <>
       <Navbar />
       
-      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 page-fade-in w-full">
+      <main className="flex-grow w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-16 page-fade-in">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-extrabold tracking-tight">Contact Us</h1>
           <p className="mt-3 text-zinc-500 dark:text-zinc-400 max-w-2xl mx-auto">

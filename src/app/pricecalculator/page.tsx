@@ -184,7 +184,7 @@ export default function PriceCalculatorPage() {
 
       {/* Top Banner / Header */}
       <section className="border-b border-zinc-200/80 dark:border-white/[0.08] bg-white dark:bg-[#090912] pt-12 pb-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 mb-3">
@@ -250,7 +250,7 @@ export default function PriceCalculatorPage() {
       </section>
 
       {/* Main Calculator Lab Workspace */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full flex-grow">
+      <main className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-10 flex-grow">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Left Configurator Column (8 cols) */}

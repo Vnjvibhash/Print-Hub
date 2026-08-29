@@ -243,7 +243,7 @@ export default function HeroCarousel() {
         }}
       />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 md:pt-28 md:pb-32">
+      <div className="relative w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 pt-20 pb-24 md:pt-28 md:pb-32">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.div
             key={`slide-${current}`}

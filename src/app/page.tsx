@@ -260,7 +260,7 @@ export default function Home() {
 
       {/* International Trust Ticker Bar */}
       <section className="border-y border-zinc-200/80 dark:border-white/[0.06] bg-zinc-50/70 dark:bg-white/[0.02] py-4 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center divide-x-0 md:divide-x divide-zinc-200 dark:divide-white/5">
             <div className="flex items-center justify-center gap-2.5 py-1">
               <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center">
@@ -306,7 +306,7 @@ export default function Home() {
       </section>
 
       {/* Bento Featured Services Section */}
-      <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <div>
             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 mb-3">
@@ -378,7 +378,7 @@ export default function Home() {
 
       {/* Interactive Live Price Estimator Studio */}
       <section className="py-24 bg-zinc-50/70 dark:bg-zinc-950/40 border-y border-zinc-200/80 dark:border-white/[0.06]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
             {/* Left Description Column */}
@@ -637,7 +637,7 @@ export default function Home() {
       </section>
 
       {/* 4-Step Process Workflow */}
-      <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
         <div className="text-center max-w-2xl mx-auto mb-16">
           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 mb-3">
             Streamlined Ordering
@@ -675,7 +675,7 @@ export default function Home() {
 
       {/* Customer Reviews & Interactive Feedback Section */}
       <section className="py-24 bg-zinc-50/70 dark:bg-zinc-950/40 border-t border-zinc-200/80 dark:border-white/[0.06]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 mb-3">
               <Star className="h-3 w-3 fill-current" />

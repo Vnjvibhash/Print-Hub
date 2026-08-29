@@ -10,7 +10,7 @@ export default function PrivacyPage() {
     <>
       <Navbar />
       
-      <main className="flex-grow max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 page-fade-in text-zinc-600 dark:text-zinc-300 leading-relaxed">
+      <main className="flex-grow w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-16 page-fade-in text-zinc-600 dark:text-zinc-300 leading-relaxed">
         <div className="text-center mb-12 border-b border-zinc-200 dark:border-zinc-800 pb-8">
           <div className="inline-flex items-center justify-center p-3 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 mb-4">
             <ShieldCheck className="w-8 h-8" />

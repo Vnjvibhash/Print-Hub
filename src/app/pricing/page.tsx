@@ -161,7 +161,7 @@ export default function PricingPage() {
     <>
       <Navbar />
 
-      <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 page-fade-in w-full">
+      <main className="flex-grow w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-16 page-fade-in">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-10">
           <div className="inline-flex items-center justify-center p-3 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 mb-4">

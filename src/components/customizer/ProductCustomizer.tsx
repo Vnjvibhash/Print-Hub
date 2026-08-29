@@ -171,7 +171,7 @@ export default function ProductCustomizer({ initialType = "tshirt", onAddToCart 
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-7xl mx-auto w-full">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
       {/* Visual Live Preview Canvas */}
       <div className="lg:col-span-7 flex flex-col items-center">
         <div className="w-full aspect-square max-w-[440px] rounded-3xl glass-panel relative flex items-center justify-center p-8 overflow-hidden group shadow-2xl">

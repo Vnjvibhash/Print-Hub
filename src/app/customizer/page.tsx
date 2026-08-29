@@ -29,7 +29,7 @@ function CustomizerContent() {
   };
 
   return (
-    <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 w-full page-fade-in">
+    <main className="flex-grow w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-12 page-fade-in">
       <div className="text-center max-w-3xl mx-auto mb-12">
         <span className="inline-flex items-center px-3 py-1 rounded-full border border-indigo-500/20 bg-indigo-500/5 text-indigo-600 dark:text-indigo-400 text-xs font-semibold uppercase tracking-wider mb-3">
           <Sparkles className="w-3.5 h-3.5 mr-1" />
