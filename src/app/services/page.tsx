@@ -15,17 +15,120 @@ import {
   FileText, 
   Check, 
   ChevronRight, 
-  Info,
-  Settings,
-  X,
-  CreditCard
+  Info, 
+  Settings, 
+  X, 
+  CreditCard,
+  Palette
 } from "lucide-react";
 
-const CATEGORIES: { id: ServiceCategory; label: string; icon: any }[] = [
-  { id: "printing", label: "Printing Services", icon: Printer },
-  { id: "business", label: "Business Services", icon: Layers },
-  { id: "merchandise", label: "Custom Merchandise", icon: Sparkles },
-  { id: "documents", label: "Document Services", icon: FileText },
+interface CategoryThemeConfig {
+  name: string;
+  tagline: string;
+  color: string;
+  pillActive: string;
+  badgeBg: string;
+  buttonBg: string;
+  cardBorderHover: string;
+  cardHoverShadow: string;
+  priceColor: string;
+  iconColor: string;
+  iconBg: string;
+  ambientGradient: string;
+}
+
+const THEME_PRESETS: Record<string, CategoryThemeConfig> = {
+  indigo: {
+    name: "Neon Indigo",
+    tagline: "High-precision digital laser printing and ultra-clear reproduction.",
+    color: "indigo",
+    pillActive: "bg-indigo-600 text-white shadow-lg shadow-indigo-500/25",
+    badgeBg: "bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:text-indigo-400",
+    buttonBg: "bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20",
+    cardBorderHover: "hover:border-indigo-500/40",
+    cardHoverShadow: "hover:shadow-indigo-500/10",
+    priceColor: "text-indigo-600 dark:text-indigo-400",
+    iconColor: "text-indigo-500",
+    iconBg: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20",
+    ambientGradient: "from-indigo-600/10 via-purple-600/5 to-transparent",
+  },
+  emerald: {
+    name: "Cyber Emerald",
+    tagline: "Corporate executive business stationery and luxury embossed finishes.",
+    color: "emerald",
+    pillActive: "bg-emerald-600 text-white shadow-lg shadow-emerald-500/25",
+    badgeBg: "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400",
+    buttonBg: "bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-500/20",
+    cardBorderHover: "hover:border-emerald-500/40",
+    cardHoverShadow: "hover:shadow-emerald-500/10",
+    priceColor: "text-emerald-600 dark:text-emerald-400",
+    iconColor: "text-emerald-500",
+    iconBg: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+    ambientGradient: "from-emerald-600/10 via-teal-600/5 to-transparent",
+  },
+  purple: {
+    name: "Royal Purple",
+    tagline: "Creative studio custom apparel, vibrant merchandise and photo gifts.",
+    color: "purple",
+    pillActive: "bg-purple-600 text-white shadow-lg shadow-purple-500/25",
+    badgeBg: "bg-purple-500/10 border-purple-500/20 text-purple-600 dark:text-purple-400",
+    buttonBg: "bg-purple-600 hover:bg-purple-500 text-white shadow-md shadow-purple-500/20",
+    cardBorderHover: "hover:border-purple-500/40",
+    cardHoverShadow: "hover:shadow-purple-500/10",
+    priceColor: "text-purple-600 dark:text-purple-400",
+    iconColor: "text-purple-500",
+    iconBg: "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20",
+    ambientGradient: "from-purple-600/10 via-pink-600/5 to-transparent",
+  },
+  amber: {
+    name: "Sunset Amber",
+    tagline: "High-visibility certificates, event badges, and golden metallic finishes.",
+    color: "amber",
+    pillActive: "bg-amber-600 text-white shadow-lg shadow-amber-500/25",
+    badgeBg: "bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400",
+    buttonBg: "bg-amber-600 hover:bg-amber-500 text-white shadow-md shadow-amber-500/20",
+    cardBorderHover: "hover:border-amber-500/40",
+    cardHoverShadow: "hover:shadow-amber-500/10",
+    priceColor: "text-amber-600 dark:text-amber-400",
+    iconColor: "text-amber-500",
+    iconBg: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+    ambientGradient: "from-amber-600/10 via-orange-600/5 to-transparent",
+  },
+  rose: {
+    name: "Crimson Rose",
+    tagline: "Passionate premium bespoke printing, novel editions & thesis binding.",
+    color: "rose",
+    pillActive: "bg-rose-600 text-white shadow-lg shadow-rose-500/25",
+    badgeBg: "bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400",
+    buttonBg: "bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-500/20",
+    cardBorderHover: "hover:border-rose-500/40",
+    cardHoverShadow: "hover:shadow-rose-500/10",
+    priceColor: "text-rose-600 dark:text-rose-400",
+    iconColor: "text-rose-500",
+    iconBg: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
+    ambientGradient: "from-rose-600/10 via-red-600/5 to-transparent",
+  },
+  sky: {
+    name: "Ocean Sky",
+    tagline: "High-resolution OCR digital scanning, legal typing, and clear protective laminations.",
+    color: "sky",
+    pillActive: "bg-sky-600 text-white shadow-lg shadow-sky-500/25",
+    badgeBg: "bg-sky-500/10 border-sky-500/20 text-sky-600 dark:text-sky-400",
+    buttonBg: "bg-sky-600 hover:bg-sky-500 text-white shadow-md shadow-sky-500/20",
+    cardBorderHover: "hover:border-sky-500/40",
+    cardHoverShadow: "hover:shadow-sky-500/10",
+    priceColor: "text-sky-600 dark:text-sky-400",
+    iconColor: "text-sky-500",
+    iconBg: "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20",
+    ambientGradient: "from-sky-600/10 via-blue-600/5 to-transparent",
+  },
+};
+
+const CATEGORIES: { id: ServiceCategory; label: string; icon: any; defaultThemeKey: string }[] = [
+  { id: "printing", label: "Printing Services", icon: Printer, defaultThemeKey: "indigo" },
+  { id: "business", label: "Business Services", icon: Layers, defaultThemeKey: "emerald" },
+  { id: "merchandise", label: "Custom Merchandise", icon: Sparkles, defaultThemeKey: "purple" },
+  { id: "documents", label: "Document Services", icon: FileText, defaultThemeKey: "sky" },
 ];
 
 function ServicesContent() {
@@ -35,6 +138,7 @@ function ServicesContent() {
   const initialCategory = CATEGORIES.some(c => c.id === catParam) ? catParam : "printing";
 
   const [activeCategory, setActiveCategory] = useState<ServiceCategory>(initialCategory);
+  const [themeMode, setThemeMode] = useState<"auto" | "indigo" | "emerald" | "purple" | "amber" | "rose" | "sky">("auto");
   const [services, setServices] = useState<ServiceItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [settingsVersion, setSettingsVersion] = useState(0);
@@ -55,6 +159,10 @@ function ServicesContent() {
 
   // Live Pricing
   const [livePrice, setLivePrice] = useState<PriceBreakdown | null>(null);
+
+  const activeCategoryObj = CATEGORIES.find(c => c.id === activeCategory) || CATEGORIES[0];
+  const effectiveThemeKey = themeMode === "auto" ? activeCategoryObj.defaultThemeKey : themeMode;
+  const activeTheme = THEME_PRESETS[effectiveThemeKey] || THEME_PRESETS.indigo;
 
   // Fetch Services + pricing/offers from Firestore
   useEffect(() => {
@@ -166,42 +274,84 @@ function ServicesContent() {
   const filteredServices = services.filter(s => s.category === activeCategory);
 
   return (
-    <main className="flex-grow w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-12 page-fade-in">
-      {/* Header */}
-      <div className="text-center max-w-3xl mx-auto mb-12">
-        <h1 className="text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white">SUVIR Printing Service Center</h1>
-        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-          From fast high-volume black & white documents to custom visiting cards, typing assistance, and scanning.
+    <main className="flex-grow w-full px-4 sm:px-8 lg:px-12 xl:px-16 2xl:px-20 py-12 page-fade-in relative transition-colors duration-500">
+      {/* Dynamic Ambient Background Glow */}
+      <div 
+        className={`absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-96 bg-gradient-to-b ${activeTheme.ambientGradient} blur-3xl pointer-events-none -z-10 transition-all duration-700`} 
+      />
+
+      {/* Dynamic Header */}
+      <div className="text-center max-w-3xl mx-auto mb-10">
+        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${activeTheme.badgeBg} border mb-3 transition-all duration-300`}>
+          {React.createElement(CATEGORIES.find(c => c.id === activeCategory)?.icon || Printer, { className: "w-3.5 h-3.5" })}
+          <span>{activeTheme.name} Catalog</span>
+        </span>
+        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-zinc-900 dark:text-white transition-colors">
+          SUVIR Printing Service Center
+        </h1>
+        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed transition-colors">
+          {activeTheme.tagline}
         </p>
       </div>
 
-      {/* Categories Tabs Selector */}
-      <div className="flex bg-zinc-100 dark:bg-zinc-950 p-1.5 rounded-2xl max-w-2xl mx-auto border border-zinc-200/50 dark:border-zinc-800/80 mb-12 overflow-x-auto whitespace-nowrap">
+      {/* Dynamic Categories Tabs Selector */}
+      <div className="flex bg-zinc-100/90 dark:bg-zinc-950/90 p-1.5 rounded-2xl max-w-2xl mx-auto border border-zinc-200/80 dark:border-white/10 mb-6 overflow-x-auto whitespace-nowrap shadow-inner backdrop-blur-md">
         {CATEGORIES.map((cat) => {
           const CatIcon = cat.icon;
           const isActive = activeCategory === cat.id;
+          const theme = THEME_PRESETS[cat.defaultThemeKey];
           return (
             <button
               key={cat.id}
               onClick={() => setActiveCategory(cat.id)}
-              className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer ${
+              className={`flex-1 flex items-center justify-center space-x-2 py-3 px-4 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 cursor-pointer ${
                 isActive
-                  ? "bg-white dark:bg-zinc-900 text-indigo-600 dark:text-indigo-400 shadow-sm"
-                  : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                  ? `${theme.pillActive}`
+                  : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200"
               }`}
             >
-              <CatIcon className="w-4 h-4" />
+              <CatIcon className="w-4 h-4 flex-shrink-0" />
               <span>{cat.label}</span>
             </button>
           );
         })}
       </div>
 
-      {/* Services Grid layout */}
+      {/* Dynamic Theme Atmosphere Switcher Bar */}
+      <div className="flex items-center justify-center gap-2 mb-12 flex-wrap text-xs">
+        <span className="text-zinc-400 font-semibold flex items-center gap-1 mr-1 text-[11px] uppercase tracking-wider">
+          <Palette className="w-3.5 h-3.5" />
+          <span>Accent Theme:</span>
+        </span>
+        {[
+          { key: "auto", label: "Auto (Category Match)", dot: "bg-gradient-to-r from-indigo-500 via-emerald-500 to-purple-500" },
+          { key: "indigo", label: "Neon Indigo", dot: "bg-indigo-500" },
+          { key: "emerald", label: "Cyber Emerald", dot: "bg-emerald-500" },
+          { key: "purple", label: "Royal Purple", dot: "bg-purple-500" },
+          { key: "amber", label: "Sunset Amber", dot: "bg-amber-500" },
+          { key: "rose", label: "Crimson Rose", dot: "bg-rose-500" },
+          { key: "sky", label: "Ocean Sky", dot: "bg-sky-500" },
+        ].map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setThemeMode(t.key as any)}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
+              themeMode === t.key
+                ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm scale-105"
+                : "bg-zinc-100 dark:bg-white/5 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-white/10"
+            }`}
+          >
+            <span className={`w-2.5 h-2.5 rounded-full ${t.dot}`} />
+            <span>{t.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Services Grid layout with Dynamic Theme Cards */}
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="h-64 rounded-2xl bg-zinc-100 dark:bg-zinc-900 animate-pulse border border-zinc-200 dark:border-zinc-800" />
+            <div key={i} className="h-64 rounded-3xl bg-zinc-100 dark:bg-zinc-900 animate-pulse border border-zinc-200 dark:border-zinc-800" />
           ))}
         </div>
       ) : (
@@ -209,14 +359,14 @@ function ServicesContent() {
           {filteredServices.map((svc) => (
             <div 
               key={svc.id} 
-              className="glass-panel border-white/5 rounded-2xl p-6 flex flex-col justify-between hover:translate-y-[-2px] transition-all duration-300 group shadow-md"
+              className={`glass-panel border-white/5 rounded-3xl p-7 flex flex-col justify-between hover:translate-y-[-2px] transition-all duration-300 group shadow-md ${activeTheme.cardBorderHover} ${activeTheme.cardHoverShadow}`}
             >
               <div>
-                <h3 className="text-lg font-bold text-zinc-900 dark:text-white group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors flex items-center justify-between gap-2">
-                  <span>{svc.name}</span>
+                <h3 className="text-lg font-bold text-zinc-900 dark:text-white group-hover:text-inherit transition-colors flex items-center justify-between gap-2">
+                  <span className="group-hover:translate-x-0.5 transition-transform">{svc.name}</span>
                   <div className="flex items-center gap-1 flex-shrink-0">
                     {svc.pricingTiers && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-indigo-500/10 text-indigo-500 dark:text-indigo-400 uppercase tracking-wider">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold ${activeTheme.badgeBg} uppercase tracking-wider`}>
                         Volume Discount
                       </span>
                     )}
@@ -225,7 +375,7 @@ function ServicesContent() {
                       const best = getBestOfferForService(svc.id);
                       if (!best) return null;
                       return (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/15 text-emerald-500 dark:text-emerald-400 uppercase tracking-wider border border-emerald-500/20">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 uppercase tracking-wider border border-emerald-500/20">
                           {best.discountType === "percentage"
                             ? `${best.discountValue}% OFF`
                             : `₹${best.discountValue} OFF`}
@@ -240,7 +390,7 @@ function ServicesContent() {
                 <div className="mt-4 border-t border-zinc-100 dark:border-zinc-900/60 pt-4 space-y-2">
                   {svc.features.map((feat, idx) => (
                     <div key={idx} className="flex items-center space-x-2 text-xs text-zinc-600 dark:text-zinc-300">
-                      <Check className="w-3.5 h-3.5 text-indigo-500 flex-shrink-0" />
+                      <Check className={`w-3.5 h-3.5 ${activeTheme.iconColor} flex-shrink-0`} />
                       <span className="truncate">{feat}</span>
                     </div>
                   ))}
@@ -253,7 +403,7 @@ function ServicesContent() {
                     {svc.pricingTiers ? "Price Range" : "Base Rate"}
                   </span>
                   {svc.pricingTiers ? (
-                    <p className="text-sm sm:text-base font-extrabold text-indigo-600 dark:text-indigo-400">
+                    <p className={`text-sm sm:text-base font-extrabold ${activeTheme.priceColor}`}>
                       ₹{Math.min(...svc.pricingTiers.map(t => t.singleSidePrice)).toFixed(2)} - ₹{Math.max(...svc.pricingTiers.map(t => t.singleSidePrice)).toFixed(2)}
                       <span className="text-xs text-zinc-400 font-normal"> /sheet</span>
                     </p>
@@ -267,7 +417,7 @@ function ServicesContent() {
                 
                 <button
                   onClick={() => handleOpenConfigModal(svc)}
-                  className="flex items-center space-x-1 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition shadow-md hover:shadow-indigo-500/10 cursor-pointer"
+                  className={`flex items-center space-x-1 px-4 py-2.5 rounded-xl ${activeTheme.buttonBg} text-xs font-bold transition active:scale-95 cursor-pointer`}
                 >
                   <span>{svc.category === "merchandise" ? "Design Studio" : "Order Print"}</span>
                   <ChevronRight className="w-3.5 h-3.5" />
@@ -561,7 +711,7 @@ function ServicesContent() {
                   </div>
                   <div className="flex justify-between border-t border-zinc-250/20 dark:border-zinc-800/80 pt-2 text-sm">
                     <span className="font-bold text-zinc-800 dark:text-zinc-200">Total Amount (incl. 18% GST)</span>
-                    <span className="font-black text-indigo-600 dark:text-indigo-400">₹{livePrice.total.toFixed(2)}</span>
+                    <span className={`font-black ${activeTheme.priceColor}`}>₹{livePrice.total.toFixed(2)}</span>
                   </div>
                 </div>
               )}
@@ -571,14 +721,14 @@ function ServicesContent() {
             <div className="px-6 py-4 border-t border-zinc-100 dark:border-zinc-900 flex justify-between items-center bg-zinc-50 dark:bg-zinc-900/50 flex-shrink-0">
               <button
                 onClick={() => setSelectedService(null)}
-                className="px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-bold hover:bg-zinc-150 dark:hover:bg-zinc-900 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition"
+                className="px-4 py-2 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-bold hover:bg-zinc-150 dark:hover:bg-zinc-900 text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleProceedToCheckout}
                 disabled={["printing", "documents"].includes(selectedService.category) && selectedService.id !== "resume-creation" && !uploadedFileUrl}
-                className="flex items-center space-x-2 px-6 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-xs font-semibold shadow-md transition cursor-pointer"
+                className={`flex items-center space-x-2 px-6 py-2.5 rounded-xl ${activeTheme.buttonBg} disabled:opacity-40 text-xs font-bold shadow-md transition active:scale-95 cursor-pointer`}
               >
                 <CreditCard className="w-4 h-4" />
                 <span>Confirm & Checkout</span>
