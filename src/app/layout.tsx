@@ -26,7 +26,8 @@ export default function RootLayout({
     <html
       lang="en"
       data-scroll-behavior="smooth"
-      className="h-full antialiased"
+      className="h-full antialiased light"
+      style={{ colorScheme: "light" }}
       suppressHydrationWarning
     >
       <head>
@@ -34,16 +35,15 @@ export default function RootLayout({
           {`
             (function() {
               try {
-                const t = localStorage.getItem('theme') || 'system';
-                const d = t === 'dark' || (t === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-                document.documentElement.classList.toggle('dark', d);
-                document.documentElement.classList.toggle('light', !d);
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.add('light');
+                localStorage.setItem('theme', 'light');
               } catch (_) {}
             })();
           `}
         </Script>
       </head>
-      <body className="min-h-full flex flex-col bg-[#fafafc] dark:bg-[#07070a] text-[#0f0f15] dark:text-[#f3f4f6]">
+      <body className="min-h-full flex flex-col bg-[#fafafc] text-[#0f0f15]">
         <AuthProvider>
           <div className="relative min-h-screen flex flex-col overflow-hidden">
             {/* Background glowing spots for beautiful aesthetic */}

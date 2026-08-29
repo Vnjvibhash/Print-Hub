@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/providers/AuthProvider";
@@ -14,120 +14,9 @@ import {
   Shield, 
   Lock, 
   ChevronDown, 
-  Sun,
-  Moon,
-  Monitor,
-  Check,
   Sparkles,
   Calculator,
 } from "lucide-react";
-
-type Theme = "light" | "dark" | "system";
-
-function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("system");
-  const [isOpen, setIsOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  const applyTheme = useCallback((t: Theme) => {
-    const root = document.documentElement;
-    if (t === "dark") {
-      root.classList.add("dark");
-      root.classList.remove("light");
-    } else if (t === "light") {
-      root.classList.remove("dark");
-      root.classList.add("light");
-    } else {
-      const isDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      root.classList.toggle("dark", isDark);
-      root.classList.toggle("light", !isDark);
-    }
-  }, []);
-
-  useEffect(() => {
-    setMounted(true);
-    const saved = (localStorage.getItem("theme") as Theme) || "system";
-    setTheme(saved);
-
-    // Listen for system preference changes
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const onSystem = () => {
-      if ((localStorage.getItem("theme") || "system") === "system") {
-        applyTheme("system");
-      }
-    };
-    mq.addEventListener("change", onSystem);
-    return () => mq.removeEventListener("change", onSystem);
-  }, [applyTheme]);
-
-  // Close on outside click
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const handleSelect = (t: Theme) => {
-    setTheme(t);
-    localStorage.setItem("theme", t);
-    applyTheme(t);
-    setIsOpen(false);
-  };
-
-  const getIcon = () => {
-    if (!mounted) return <Monitor className="h-4 w-4" />;
-    if (theme === "dark") return <Moon className="h-4 w-4" />;
-    if (theme === "light") return <Sun className="h-4 w-4" />;
-    return <Monitor className="h-4 w-4" />;
-  };
-
-  const options: { value: Theme; label: string; icon: React.ReactNode }[] = [
-    { value: "light",  label: "Light",  icon: <Sun className="h-4 w-4 text-amber-500" /> },
-    { value: "dark",   label: "Dark",   icon: <Moon className="h-4 w-4 text-indigo-400" /> },
-    { value: "system", label: "System", icon: <Monitor className="h-4 w-4 text-zinc-500" /> },
-  ];
-
-  return (
-    <div className="relative" ref={menuRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        aria-label="Toggle theme"
-        title="Change theme"
-        className="relative flex items-center justify-center w-9 h-9 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white/60 dark:bg-zinc-800/60 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 text-zinc-600 dark:text-zinc-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all duration-200 shadow-sm backdrop-blur-sm"
-      >
-        <span className="transition-transform duration-300">
-          {getIcon()}
-        </span>
-      </button>
-
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-40 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 shadow-2xl shadow-black/10 dark:shadow-black/40 py-1.5 z-[60] overflow-hidden animate-[fadeSlideDown_0.15s_ease-out]">
-          <p className="px-3 py-1.5 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Appearance</p>
-          {options.map(({ value, label, icon }) => (
-            <button
-              key={value}
-              onClick={() => handleSelect(value)}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm font-medium transition-colors ${
-                theme === value
-                  ? "bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400"
-                  : "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800/60"
-              }`}
-            >
-              {icon}
-              <span>{label}</span>
-              {theme === value && <Check className="h-3.5 w-3.5 ml-auto text-indigo-500" />}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function Navbar() {
   const { user, signIn, signOut, loading } = useAuth();
@@ -219,11 +108,8 @@ export default function Navbar() {
               <span>Studio</span>
             </Link>
 
-            {/* Theme Toggle */}
-            <ThemeToggle />
-
             {/* Separator */}
-            <div className="w-px h-6 bg-zinc-200 dark:bg-zinc-800" />
+            <div className="w-px h-6 bg-zinc-200" />
 
             {loading ? (
               <div className="h-8 w-24 bg-zinc-200 dark:bg-zinc-800 animate-pulse rounded-xl" />
@@ -325,9 +211,8 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile: Theme + Menu Button */}
+          {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center space-x-2">
-            <ThemeToggle />
 
             {!user && !loading && (
               <button
