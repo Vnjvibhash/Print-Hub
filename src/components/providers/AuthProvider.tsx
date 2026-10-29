@@ -45,7 +45,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     syncRemoteSettings();
 
-    return () => unsubscribe();
+    return () => {
+      if (typeof unsubscribe === "function") {
+        unsubscribe();
+      }
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {

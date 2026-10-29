@@ -255,7 +255,11 @@ function CheckoutContent() {
     if (!priceBreakdown || !serviceId) return;
 
     const newOrderId = `PH-${Math.floor(1000 + Math.random() * 9000)}`;
-    const filesList = fileName ? [{ name: fileName, url: fileUrl, size: fileSize, type: fileType }] : [];
+    const filesList = fileName
+      ? [{ name: fileName, url: fileUrl, size: fileSize, type: fileType }]
+      : specs.customImageUrl
+      ? [{ name: "custom_design.png", url: specs.customImageUrl, size: 0, type: "image/png" }]
+      : [];
 
     const orderData: Order = {
       id: newOrderId,
@@ -364,7 +368,7 @@ function CheckoutContent() {
           </div>
           <div className="flex justify-between text-xs text-zinc-400 border-b border-zinc-150/40 dark:border-zinc-850/60 pb-3">
             <span>Total Captured</span>
-            <span className="font-extrabold text-indigo-500">₹{completedOrder.priceBreakdown.total.toFixed(2)}</span>
+            <span className="font-extrabold text-indigo-500">₹{(completedOrder.priceBreakdown?.total ?? 0).toFixed(2)}</span>
           </div>
 
           {/* Download and track buttons */}

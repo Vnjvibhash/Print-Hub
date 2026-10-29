@@ -39,20 +39,41 @@ export default function AdminSettingsPage() {
   const [hasChanges, setHasChanges] = useState(false);
 
   useEffect(() => {
-    const raw = localStorage.getItem("printhub_db_settings");
-    if (raw) {
-      try {
-        const parsed = JSON.parse(raw);
-        setSettings({
-          companyName: parsed.companyName || DEFAULT_SETTINGS.companyName,
-          companyAddress: parsed.companyAddress || DEFAULT_SETTINGS.companyAddress,
-          gstNumber: parsed.gstNumber || DEFAULT_SETTINGS.gstNumber,
-          contactEmail: parsed.contactEmail || DEFAULT_SETTINGS.contactEmail,
-          upiId: parsed.upiId || DEFAULT_SETTINGS.upiId,
-          taxRate: parsed.taxRate ?? DEFAULT_SETTINGS.taxRate,
-        });
-      } catch {}
+    async function loadSettings() {
+      if (isFirebaseEnabled) {
+        try {
+          const doc = await dbService.getDocument<any>("settings", "app-settings");
+          if (doc) {
+            setSettings({
+              companyName: doc.companyName || DEFAULT_SETTINGS.companyName,
+              companyAddress: doc.companyAddress || DEFAULT_SETTINGS.companyAddress,
+              gstNumber: doc.gstNumber || DEFAULT_SETTINGS.gstNumber,
+              contactEmail: doc.contactEmail || DEFAULT_SETTINGS.contactEmail,
+              upiId: doc.upiId || DEFAULT_SETTINGS.upiId,
+              taxRate: doc.taxRate ?? DEFAULT_SETTINGS.taxRate,
+            });
+            return;
+          }
+        } catch (e) {
+          console.warn("Could not load settings from Firestore:", e);
+        }
+      }
+      const raw = localStorage.getItem("printhub_db_settings");
+      if (raw) {
+        try {
+          const parsed = JSON.parse(raw);
+          setSettings({
+            companyName: parsed.companyName || DEFAULT_SETTINGS.companyName,
+            companyAddress: parsed.companyAddress || DEFAULT_SETTINGS.companyAddress,
+            gstNumber: parsed.gstNumber || DEFAULT_SETTINGS.gstNumber,
+            contactEmail: parsed.contactEmail || DEFAULT_SETTINGS.contactEmail,
+            upiId: parsed.upiId || DEFAULT_SETTINGS.upiId,
+            taxRate: parsed.taxRate ?? DEFAULT_SETTINGS.taxRate,
+          });
+        } catch {}
+      }
     }
+    loadSettings();
   }, []);
 
   const updateField = (field: keyof SettingsData, value: string | number) => {

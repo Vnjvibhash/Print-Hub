@@ -254,7 +254,7 @@ export default function AdminOrdersPage() {
                       <p className="text-xs text-zinc-400 truncate">{order.serviceName}</p>
                     </div>
                     <div>
-                      <span className="text-xs font-bold text-zinc-200">₹{order.priceBreakdown.total.toFixed(2)}</span>
+                      <span className="text-xs font-bold text-zinc-200">₹{(order.priceBreakdown?.total ?? 0).toFixed(2)}</span>
                     </div>
                     <div>
                       <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold ${STATUS_COLORS[order.orderStatus] || ""}`}>
@@ -293,11 +293,11 @@ export default function AdminOrdersPage() {
                       <div className="space-y-2">
                         <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">Price Breakdown</p>
                         <div className="text-xs space-y-1 text-zinc-400">
-                          <p>Base: <span className="text-zinc-300">₹{order.priceBreakdown.base.toFixed(2)}</span></p>
-                          <p>Options: <span className="text-zinc-300">₹{order.priceBreakdown.optionsPrice.toFixed(2)}</span></p>
-                          <p>Subtotal: <span className="text-zinc-300">₹{order.priceBreakdown.subtotal.toFixed(2)}</span></p>
-                          <p>GST: <span className="text-zinc-300">₹{order.priceBreakdown.gst.toFixed(2)}</span></p>
-                          <p className="font-bold text-white">Total: ₹{order.priceBreakdown.total.toFixed(2)}</p>
+                          <p>Base: <span className="text-zinc-300">₹{(order.priceBreakdown?.base ?? 0).toFixed(2)}</span></p>
+                          <p>Options: <span className="text-zinc-300">₹{(order.priceBreakdown?.optionsPrice ?? 0).toFixed(2)}</span></p>
+                          <p>Subtotal: <span className="text-zinc-300">₹{(order.priceBreakdown?.subtotal ?? 0).toFixed(2)}</span></p>
+                          <p>GST: <span className="text-zinc-300">₹{(order.priceBreakdown?.gst ?? 0).toFixed(2)}</span></p>
+                          <p className="font-bold text-white">Total: ₹{(order.priceBreakdown?.total ?? 0).toFixed(2)}</p>
                         </div>
                       </div>
                     </div>

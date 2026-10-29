@@ -45,8 +45,12 @@ export default function FileUploader({
       return false;
     }
 
-    // 2. Check format type
-    if (!allowedExtensions.includes(selectedFile.type)) {
+    // 2. Check format type (by MIME type or file extension)
+    const ext = selectedFile.name.split(".").pop()?.toLowerCase() || "";
+    const allowedExts = ["pdf", "docx", "pptx", "xlsx", "png", "jpg", "jpeg", "webp"];
+    const isAllowed = allowedExtensions.includes(selectedFile.type) || allowedExts.includes(ext);
+
+    if (!isAllowed) {
       const err = "Unsupported file type. Please upload a PDF, DOCX, PPTX, XLSX, or Image.";
       setErrorMessage(err);
       setUploadState("error");

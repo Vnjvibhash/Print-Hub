@@ -7,6 +7,10 @@ export const DEFAULT_PRICING_CONFIG = {
   "a4-color": 10,
   "a3-bw": 5,
   "a3-color": 20,
+  "a5-bw": 1.5,
+  "a5-color": 7,
+  "b5-bw": 1.8,
+  "b5-color": 8,
   "photo-print": 15,
   "passport-photo": 50, // Per set of 8 photos
   "banner-print": 40,   // Per sq ft
@@ -131,6 +135,30 @@ export const DEFAULT_TIERED_SERVICES: Record<string, any> = {
     { minQty: 11, maxQty: 50, singleSidePrice: 18 },
     { minQty: 51, maxQty: 100, singleSidePrice: 15 },
     { minQty: 101, maxQty: null, singleSidePrice: 12 },
+  ],
+  "a5-bw": [
+    { minQty: 1, maxQty: 10, singleSidePrice: 1.5, doubleSidePrice: 2.2 },
+    { minQty: 11, maxQty: 50, singleSidePrice: 1.2, doubleSidePrice: 1.8 },
+    { minQty: 51, maxQty: 100, singleSidePrice: 1.0, doubleSidePrice: 1.5 },
+    { minQty: 101, maxQty: null, singleSidePrice: 0.7, doubleSidePrice: 1.0 },
+  ],
+  "a5-color": [
+    { minQty: 1, maxQty: 10, singleSidePrice: 7, doubleSidePrice: 12 },
+    { minQty: 11, maxQty: 50, singleSidePrice: 6, doubleSidePrice: 10 },
+    { minQty: 51, maxQty: 100, singleSidePrice: 5, doubleSidePrice: 8 },
+    { minQty: 101, maxQty: null, singleSidePrice: 4, doubleSidePrice: 6.5 },
+  ],
+  "b5-bw": [
+    { minQty: 1, maxQty: 10, singleSidePrice: 1.8, doubleSidePrice: 2.5 },
+    { minQty: 11, maxQty: 50, singleSidePrice: 1.4, doubleSidePrice: 2.0 },
+    { minQty: 51, maxQty: 100, singleSidePrice: 1.1, doubleSidePrice: 1.6 },
+    { minQty: 101, maxQty: null, singleSidePrice: 0.8, doubleSidePrice: 1.2 },
+  ],
+  "b5-color": [
+    { minQty: 1, maxQty: 10, singleSidePrice: 8, doubleSidePrice: 14 },
+    { minQty: 11, maxQty: 50, singleSidePrice: 7, doubleSidePrice: 12 },
+    { minQty: 51, maxQty: 100, singleSidePrice: 6, doubleSidePrice: 9.5 },
+    { minQty: 101, maxQty: null, singleSidePrice: 4.8, doubleSidePrice: 7.5 },
   ],
   "photo-print": [
     { minQty: 1, maxQty: 5, singleSidePrice: 15 },
@@ -424,8 +452,9 @@ export function calculatePricing(
     // B. All non-merch services — use tiered pricing if tiers exist, else basePrice
     const tiers = getServiceTiers(serviceId, useStoredData);
     const pages = specs.pages || 1;
-    const copies = specs.copies || 1;
-    const totalSheets = pages * copies;
+    // Effective copies/quantity: if user specified quantity > 1 or specs.copies > 1
+    const effectiveQty = Math.max(1, (quantity > 1 ? quantity : (specs.copies || 1)));
+    const totalSheets = pages * effectiveQty;
 
     let ratePerUnit: number;
     if (tiers && tiers.length > 0) {
@@ -439,17 +468,17 @@ export function calculatePricing(
     if (specs.binding === "spiral") {
       const bindingTiers = getServiceTiers("binding-spiral", useStoredData);
       optionsPrice += bindingTiers
-        ? getTieredPrice("binding-spiral", copies * qty, "single", useStoredData)
+        ? getTieredPrice("binding-spiral", effectiveQty, "single", useStoredData)
         : (rates["binding-spiral"] || 0);
     }
     if (specs.binding === "lamination") {
       const lamTiers = getServiceTiers("binding-lamination", useStoredData);
       optionsPrice += lamTiers
-        ? getTieredPrice("binding-lamination", copies * qty, "single", useStoredData)
+        ? getTieredPrice("binding-lamination", effectiveQty, "single", useStoredData)
         : (rates["binding-lamination"] || 0);
     }
 
-    subtotal = (ratePerUnit * pages + optionsPrice) * copies * qty;
+    subtotal = (ratePerUnit * pages + optionsPrice) * effectiveQty;
   }
 
   // 3. Apply coupon-based discount if available

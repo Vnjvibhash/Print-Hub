@@ -622,7 +622,7 @@ export default function Home() {
                     </div>
 
                     <Link
-                      href="/services"
+                      href={`/services?category=printing&serviceId=${estimatorServiceId}&copies=${copies}&pages=${pages}&paperSize=${paperSize}&colorMode=${colorMode}&binding=${binding}`}
                       className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-500/20 active:scale-95 transition"
                     >
                       <span>Proceed with this Spec</span>

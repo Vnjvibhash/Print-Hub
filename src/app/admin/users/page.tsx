@@ -20,7 +20,7 @@ type RoleFilter = (typeof ROLE_OPTIONS)[number];
 
 const PROTECTED_EMAILS = ["vnjvibhash@gmail.com"];
 
-export const isProtectedUser = (user: { email?: string } | null | undefined): boolean => {
+const isProtectedUser = (user: { email?: string } | null | undefined): boolean => {
   if (!user || !user.email) return false;
   return PROTECTED_EMAILS.some((e) => e.toLowerCase() === user.email?.toLowerCase());
 };

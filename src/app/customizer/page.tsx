@@ -24,6 +24,8 @@ function CustomizerContent() {
       serviceId: data.serviceId,
       qty: data.quantity.toString(),
       specs: JSON.stringify(data.specifications),
+      fileUrl: data.specifications.customImageUrl || "",
+      fileName: data.specifications.customImageUrl ? "custom_merch_design.png" : "",
     });
     router.push(`/checkout?${query.toString()}`);
   };

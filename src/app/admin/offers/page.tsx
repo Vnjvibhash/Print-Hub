@@ -90,11 +90,19 @@ export default function AdminOffersPage() {
       discountValue: offer.discountValue,
       applicableServiceIds: [...offer.applicableServiceIds],
       minOrderValue: offer.minOrderValue || 0,
-      startDate: offer.startDate.split("T")[0],
-      endDate: offer.endDate.split("T")[0],
+      startDate: (offer.startDate || "").split("T")[0] || new Date().toISOString().split("T")[0],
+      endDate: (offer.endDate || "").split("T")[0] || new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
       isActive: offer.isActive,
     });
     setShowModal(true);
+  };
+
+  const toSafeISO = (dateStr: string, fallbackDaysFromNow = 0): string => {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) {
+      return new Date(Date.now() + fallbackDaysFromNow * 86400000).toISOString();
+    }
+    return d.toISOString();
   };
 
   const handleSave = async () => {
@@ -109,8 +117,8 @@ export default function AdminOffersPage() {
           code: codeUpper,
           id: editingOffer.id,
           createdAt: editingOffer.createdAt,
-          startDate: new Date(formData.startDate).toISOString(),
-          endDate: new Date(formData.endDate).toISOString(),
+          startDate: toSafeISO(formData.startDate, 0),
+          endDate: toSafeISO(formData.endDate, 30),
         };
         await dbService.setDocument("offers", editingOffer.id, record);
         updatedOffers = offers.map((o) => (o.id === editingOffer.id ? record : o));
@@ -122,8 +130,8 @@ export default function AdminOffersPage() {
           code: codeUpper,
           id: newId,
           createdAt: new Date().toISOString(),
-          startDate: new Date(formData.startDate).toISOString(),
-          endDate: new Date(formData.endDate).toISOString(),
+          startDate: toSafeISO(formData.startDate, 0),
+          endDate: toSafeISO(formData.endDate, 30),
         };
         await dbService.setDocument("offers", newId, record);
         updatedOffers = [record, ...offers];

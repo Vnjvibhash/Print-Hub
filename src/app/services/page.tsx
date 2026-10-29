@@ -164,6 +164,13 @@ function ServicesContent() {
   const effectiveThemeKey = themeMode === "auto" ? activeCategoryObj.defaultThemeKey : themeMode;
   const activeTheme = THEME_PRESETS[effectiveThemeKey] || THEME_PRESETS.indigo;
 
+  const serviceIdParam = searchParams.get("serviceId");
+  const copiesParam = searchParams.get("copies");
+  const pagesParam = searchParams.get("pages");
+  const paperSizeParam = searchParams.get("paperSize");
+  const colorModeParam = searchParams.get("colorMode");
+  const bindingParam = searchParams.get("binding");
+
   // Fetch Services + pricing/offers from Firestore
   useEffect(() => {
     async function loadAll() {
@@ -173,6 +180,18 @@ function ServicesContent() {
         // Now load services (they may have updated pricingTiers)
         const svcs = await dbService.getCollection<ServiceItem>("services");
         setServices(svcs);
+
+        if (serviceIdParam) {
+          const matched = svcs.find((s) => s.id === serviceIdParam);
+          if (matched) {
+            setSelectedService(matched);
+            if (copiesParam) setCopies(Number(copiesParam) || 1);
+            if (pagesParam) setPages(Number(pagesParam) || 1);
+            if (paperSizeParam === "A4" || paperSizeParam === "A3") setPaperSize(paperSizeParam);
+            if (colorModeParam === "bw" || colorModeParam === "color") setColorMode(colorModeParam);
+            if (bindingParam === "none" || bindingParam === "spiral" || bindingParam === "lamination") setBinding(bindingParam as any);
+          }
+        }
       } catch (err) {
         console.error("Failed to load services:", err);
       } finally {
@@ -189,7 +208,7 @@ function ServicesContent() {
       window.removeEventListener("printhub_settings_updated", onSettingsUpdate);
       window.removeEventListener("storage", onSettingsUpdate);
     };
-  }, [settingsVersion]);
+  }, [settingsVersion, serviceIdParam, copiesParam, pagesParam, paperSizeParam, colorModeParam, bindingParam]);
 
   // Update live pricing calculation
   useEffect(() => {
@@ -247,19 +266,21 @@ function ServicesContent() {
     if (!selectedService || !livePrice) return;
 
     // Build specs payload
+    const effectiveCopies = ["printing", "documents"].includes(selectedService.category) && selectedService.id !== "resume-creation" && selectedService.id !== "passport-photo" ? copies : quantity;
+
     const specs: SpecificationOptions = {
       paperSize,
       colorMode: selectedService.id.includes("color") ? "color" : colorMode,
       sides,
       binding,
       pages,
-      copies,
+      copies: effectiveCopies,
       customImageUrl: uploadedFileUrl || undefined
     };
 
     const query = new URLSearchParams({
       serviceId: selectedService.id,
-      qty: quantity.toString(),
+      qty: effectiveCopies.toString(),
       specs: JSON.stringify(specs),
       fileUrl: uploadedFileUrl,
       fileName: uploadedFileMeta?.name || "",

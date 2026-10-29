@@ -58,15 +58,48 @@ export let firebaseStorage: FirebaseStorage | null = null;
 if (isFirebaseConfigured) {
   try {
     firebaseApp = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-    firebaseAuth = getAuth(firebaseApp);
-    firebaseDb = getFirestore(firebaseApp);
-    firebaseStorage = getStorage(firebaseApp);
+    if (typeof window !== "undefined") {
+      try {
+        firebaseDb = getFirestore(firebaseApp);
+        firebaseStorage = getStorage(firebaseApp);
+        firebaseAuth = getAuth(firebaseApp);
+      } catch (clientErr) {
+        console.warn("Client Firebase initialization warning:", clientErr);
+      }
+    }
   } catch (error) {
     console.warn("Firebase initialization failed, falling back to Local/Mock mode:", error);
   }
 }
 
-export const isFirebaseEnabled = !!(firebaseApp && firebaseAuth && firebaseDb);
+export const isFirebaseEnabled = isFirebaseConfigured;
+
+export const getValidAuth = (): Auth | null => {
+  if (!firebaseAuth && firebaseApp && typeof window !== "undefined") {
+    try {
+      firebaseAuth = getAuth(firebaseApp);
+    } catch {}
+  }
+  return firebaseAuth;
+};
+
+export const getValidDb = (): Firestore | null => {
+  if (!firebaseDb && firebaseApp && typeof window !== "undefined") {
+    try {
+      firebaseDb = getFirestore(firebaseApp);
+    } catch {}
+  }
+  return firebaseDb;
+};
+
+export const getValidStorage = (): FirebaseStorage | null => {
+  if (!firebaseStorage && firebaseApp && typeof window !== "undefined") {
+    try {
+      firebaseStorage = getStorage(firebaseApp);
+    } catch {}
+  }
+  return firebaseStorage;
+};
 
 // Admin email whitelist — emails listed here are automatically assigned the 'admin' role
 const ADMIN_EMAILS: string[] = ["vnjvibhash@gmail.com"];
@@ -78,6 +111,10 @@ const DEFAULT_SERVICES: ServiceItem[] = [
   { id: "a4-color", name: "A4 Color Printing", category: "printing", description: "High-quality A4 color printing on standard or premium paper.", basePrice: 10, features: ["Vibrant color ink", "Standard or gloss finish", "Ideal for presentations"], image: "/images/a4-color.jpg" },
   { id: "a3-bw", name: "A3 Black & White Printing", category: "printing", description: "Larger format black & white printing, ideal for CAD drawings and maps.", basePrice: 5, features: ["A3 Size (297 x 420 mm)", "80 GSM paper", "Accurate detail styling"], image: "/images/a3-bw.jpg" },
   { id: "a3-color", name: "A3 Color Printing", category: "printing", description: "Premium A3 color prints for posters, charts, and spreadsheets.", basePrice: 20, features: ["Large color format", "Vivid pigments", "Perfect for diagrams"], image: "/images/a3-color.jpg" },
+  { id: "a5-bw", name: "A5 Black & White Printing", category: "printing", description: "Compact A5 black & white printing, ideal for booklets and novels.", basePrice: 1.5, features: ["A5 Size (148 x 210 mm)", "75 GSM paper", "Pocket-friendly booklet format"], image: "/images/a4-bw.jpg" },
+  { id: "a5-color", name: "A5 Color Printing", category: "printing", description: "Vibrant A5 color prints for catalogs, programs, and mini brochures.", basePrice: 7, features: ["A5 Size (148 x 210 mm)", "Vivid color ink", "High DPI clarity"], image: "/images/a4-color.jpg" },
+  { id: "b5-bw", name: "B5 Black & White Printing", category: "printing", description: "Standard B5 academic paper black & white printing.", basePrice: 1.8, features: ["B5 Size (176 x 250 mm)", "Executive opacity", "Great for manuals"], image: "/images/a4-bw.jpg" },
+  { id: "b5-color", name: "B5 Color Printing", category: "printing", description: "Rich B5 color prints for student textbooks and handbooks.", basePrice: 8, features: ["B5 Size (176 x 250 mm)", "High pigment saturation", "Premium finish"], image: "/images/a4-color.jpg" },
   { id: "photo-print", name: "Photo Printing", category: "printing", description: "Vivid, archival photo prints on professional glossy/matte photo paper.", basePrice: 15, features: ["Glossy or Matte Paper", "High DPI print resolution", "Fade resistant"], image: "/images/photo.jpg" },
   { id: "passport-photo", name: "Passport Photo Printing", category: "printing", description: "Standard passport size photo set (8 photos) with background editing.", basePrice: 50, features: ["8 Photos per sheet", "Biometric compliant", "Glossy cutouts"], image: "/images/passport.jpg" },
   { id: "spiral-binding", name: "Spiral Binding", category: "printing", description: "Robust spiral coil binding with clear cover sheet and black back card.", basePrice: 40, features: ["Up to 300 pages", "Flexible plastic coil", "Clear front cover"], image: "/images/spiral.jpg" },
@@ -428,9 +465,31 @@ const initLocalDatabase = () => {
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       },
+      "user-customer-printhub": {
+        uid: "user-customer",
+        email: "customer@printhub.com",
+        displayName: "Vikas Yadav",
+        role: "customer",
+        photoURL: "https://api.dicebear.com/7.x/adventurer/svg?seed=Jane",
+        addresses: [
+          { id: "addr-1", name: "Home", street: "Flat 402, Royal Gardens", city: "Noida", state: "Uttar Pradesh", zipCode: "201301", phone: "9876543210" }
+        ],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
       "user-admin": {
         uid: "user-admin",
         email: "admin@suvirprinting.com",
+        displayName: "Viveka Jee",
+        role: "admin",
+        photoURL: "https://api.dicebear.com/7.x/adventurer/svg?seed=Admin",
+        addresses: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      "user-admin-printhub": {
+        uid: "user-admin",
+        email: "admin@printhub.com",
         displayName: "Viveka Jee",
         role: "admin",
         photoURL: "https://api.dicebear.com/7.x/adventurer/svg?seed=Admin",
@@ -515,8 +574,9 @@ if (typeof window !== "undefined") {
 export const authService = {
   // Subscribe to auth state changes
   onAuthStateChange: (callback: (user: UserProfile | null) => void) => {
-    if (isFirebaseEnabled) {
-      return firebaseOnAuthStateChanged(firebaseAuth!, async (firebaseUser: FirebaseUser | null) => {
+    const auth = getValidAuth();
+    if (isFirebaseEnabled && auth) {
+      return firebaseOnAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
         if (firebaseUser) {
           // Fetch additional profile fields from Firestore
           const docRef = doc(firebaseDb!, "users", firebaseUser.uid);
@@ -582,8 +642,9 @@ export const authService = {
 
   // Email/Password sign up
   signUp: async (email: string, password: string, displayName: string): Promise<UserProfile> => {
-    if (isFirebaseEnabled) {
-      const userCred = await createUserWithEmailAndPassword(firebaseAuth!, email, password);
+    const auth = getValidAuth();
+    if (isFirebaseEnabled && auth) {
+      const userCred = await createUserWithEmailAndPassword(auth, email, password);
       const profile: UserProfile = {
         uid: userCred.user.uid,
         email,
@@ -626,8 +687,9 @@ export const authService = {
 
   // Email/Password sign in
   signIn: async (email: string, password: string): Promise<UserProfile> => {
-    if (isFirebaseEnabled) {
-      const userCred = await signInWithEmailAndPassword(firebaseAuth!, email, password);
+    const auth = getValidAuth();
+    if (isFirebaseEnabled && auth) {
+      const userCred = await signInWithEmailAndPassword(auth, email, password);
       const docRef = doc(firebaseDb!, "users", userCred.user.uid);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
@@ -653,11 +715,12 @@ export const authService = {
         throw new Error("Auth failed: Invalid credentials.");
       }
 
-      // Check simple passwords for mocks (customer@printhub.com / password123, admin@printhub.com / admin123)
-      if (email === "customer@printhub.com" && password !== "password123") {
+      // Check simple passwords for mocks
+      const normEmail = email.toLowerCase();
+      if ((normEmail === "customer@printhub.com" || normEmail === "customer@suvirprinting.com") && password !== "password123") {
         throw new Error("Auth failed: Invalid password.");
       }
-      if (email === "admin@printhub.com" && password !== "admin123") {
+      if ((normEmail === "admin@printhub.com" || normEmail === "admin@suvirprinting.com") && password !== "admin123") {
         throw new Error("Auth failed: Invalid password.");
       }
 
@@ -669,14 +732,15 @@ export const authService = {
 
   // Social Google login
   signInWithGoogle: async (): Promise<UserProfile> => {
-    if (isFirebaseEnabled) {
+    const auth = getValidAuth();
+    if (isFirebaseEnabled && auth) {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({
         prompt: "select_account",
       });
 
       try {
-        const userCred = await signInWithPopup(firebaseAuth!, provider);
+        const userCred = await signInWithPopup(auth, provider);
         const docRef = doc(firebaseDb!, "users", userCred.user.uid);
         const docSnap = await getDoc(docRef);
 
@@ -714,18 +778,22 @@ export const authService = {
     } else {
       // Mock Google Login - Log in the mock customer directly
       const usersMap = getLocalData("users") || {};
-      const customer = usersMap["user-customer"];
+      const customer = usersMap["user-customer"] || Object.values(usersMap)[0];
 
-      sessionStorage.setItem("printhub_logged_in_uid", customer.uid);
-      window.dispatchEvent(new Event("printhub_auth_event"));
-      return customer;
+      if (customer) {
+        sessionStorage.setItem("printhub_logged_in_uid", customer.uid);
+        window.dispatchEvent(new Event("printhub_auth_event"));
+        return customer;
+      }
+      throw new Error("No mock customer account available.");
     }
   },
 
   // Sign out
   signOut: async (): Promise<void> => {
-    if (isFirebaseEnabled) {
-      await firebaseSignOut(firebaseAuth!);
+    const auth = getValidAuth();
+    if (isFirebaseEnabled && auth) {
+      await firebaseSignOut(auth);
     } else {
       sessionStorage.removeItem("printhub_logged_in_uid");
       window.dispatchEvent(new Event("printhub_auth_event"));
@@ -733,8 +801,9 @@ export const authService = {
   },
 
   updateUserProfile: async (uid: string, data: Partial<UserProfile>): Promise<UserProfile> => {
-    if (isFirebaseEnabled) {
-      const docRef = doc(firebaseDb!, "users", uid);
+    const db = getValidDb();
+    if (isFirebaseEnabled && db) {
+      const docRef = doc(db, "users", uid);
       await updateDoc(docRef, { ...data, updatedAt: new Date().toISOString() });
       const docSnap = await getDoc(docRef);
       return docSnap.data() as UserProfile;
@@ -760,8 +829,9 @@ export const authService = {
 export const dbService = {
   // Read all items in a collection
   getCollection: async <T>(collName: string): Promise<T[]> => {
-    if (isFirebaseEnabled) {
-      const q = query(collection(firebaseDb!, collName));
+    const db = getValidDb();
+    if (isFirebaseEnabled && db) {
+      const q = query(collection(db, collName));
       const querySnapshot = await getDocs(q);
       const results = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as T[];
 
@@ -774,7 +844,7 @@ export const dbService = {
           // Upload missing services in background
           missing.forEach(async (item: any) => {
             try {
-              await setDoc(doc(firebaseDb!, "services", item.id), item);
+              await setDoc(doc(db, "services", item.id), item);
             } catch (err) {
               console.warn(`Failed to auto-seed service ${item.id} to Firestore:`, err);
             }
@@ -937,21 +1007,24 @@ export const dbService = {
       return results;
     } else {
       const data = getLocalData(collName);
-      return (data || []) as T[];
+      if (!data) return [];
+      if (Array.isArray(data)) return data as T[];
+      return Object.values(data) as T[];
     }
   },
 
   // Read a single document by ID
   getDocument: async <T>(collName: string, docId: string): Promise<T | null> => {
-    if (isFirebaseEnabled) {
-      const docRef = doc(firebaseDb!, collName, docId);
+    const db = getValidDb();
+    if (isFirebaseEnabled && db) {
+      const docRef = doc(db, collName, docId);
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         return ({ id: docSnap.id, ...docSnap.data() } as T);
       }
 
       // Fallback: Query by custom 'id' field for legacy/mismatched documents
-      const q = query(collection(firebaseDb!, collName), where("id", "==", docId));
+      const q = query(collection(db, collName), where("id", "==", docId));
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
         const d = querySnapshot.docs[0];
@@ -961,9 +1034,9 @@ export const dbService = {
     } else {
       const collectionData = getLocalData(collName);
       if (Array.isArray(collectionData)) {
-        return (collectionData.find((item: any) => item.id === docId) || null) as T | null;
+        return (collectionData.find((item: any) => item.id === docId || item.uid === docId) || null) as T | null;
       } else if (collectionData && typeof collectionData === "object") {
-        return (collectionData[docId] || null) as T | null;
+        return (collectionData[docId] || Object.values(collectionData).find((item: any) => item.id === docId || item.uid === docId) || null) as T | null;
       }
       return null;
     }
@@ -972,57 +1045,74 @@ export const dbService = {
   // Add document (handles both custom 'id' in data and auto-generated IDs)
   addDocument: async <T extends { id?: string }>(collName: string, documentData: Omit<T, "id">): Promise<T> => {
     const dataWithId = documentData as any;
-    if (isFirebaseEnabled) {
+    const db = getValidDb();
+    if (isFirebaseEnabled && db) {
       if (dataWithId && typeof dataWithId === "object" && dataWithId.id) {
         // If a custom ID is provided at runtime (e.g. PH-XXXX), write with that ID as the document ID
-        const docRef = doc(firebaseDb!, collName, dataWithId.id);
+        const docRef = doc(db, collName, dataWithId.id);
         await setDoc(docRef, dataWithId);
         return dataWithId as T;
       }
-      const collRef = collection(firebaseDb!, collName);
+      const collRef = collection(db, collName);
       const docRef = await addDoc(collRef, documentData);
       return { id: docRef.id, ...documentData } as unknown as T;
     } else {
-      const collectionData = getLocalData(collName) || [];
+      const rawData = getLocalData(collName);
       const newId = (dataWithId && dataWithId.id) || `doc-${Math.random().toString(36).substring(2, 11).toUpperCase()}`;
       const record = { id: newId, ...documentData } as unknown as T;
 
-      collectionData.push(record);
-      setLocalData(collName, collectionData);
+      if (Array.isArray(rawData)) {
+        rawData.push(record);
+        setLocalData(collName, rawData);
+      } else if (rawData && typeof rawData === "object") {
+        rawData[newId] = record;
+        setLocalData(collName, rawData);
+      } else {
+        setLocalData(collName, [record]);
+      }
       return record;
     }
   },
 
   // Set document (custom ID)
   setDocument: async <T>(collName: string, docId: string, documentData: T): Promise<T> => {
-    if (isFirebaseEnabled) {
-      await setDoc(doc(firebaseDb!, collName, docId), documentData as any);
+    const db = getValidDb();
+    if (isFirebaseEnabled && db) {
+      await setDoc(doc(db, collName, docId), documentData as any);
       return documentData;
     } else {
-      const collectionData = getLocalData(collName) || [];
-      const index = collectionData.findIndex((item: any) => item.id === docId);
+      const rawData = getLocalData(collName);
       const record = { id: docId, ...documentData };
 
-      if (index > -1) {
-        collectionData[index] = record;
+      if (Array.isArray(rawData)) {
+        const index = rawData.findIndex((item: any) => item.id === docId || item.uid === docId);
+        if (index > -1) {
+          rawData[index] = record;
+        } else {
+          rawData.push(record);
+        }
+        setLocalData(collName, rawData);
+      } else if (rawData && typeof rawData === "object") {
+        rawData[docId] = record;
+        setLocalData(collName, rawData);
       } else {
-        collectionData.push(record);
+        setLocalData(collName, [record]);
       }
-      setLocalData(collName, collectionData);
       return record as T;
     }
   },
 
   // Update document
   updateDocument: async (collName: string, docId: string, updateData: any): Promise<void> => {
-    if (isFirebaseEnabled) {
+    const db = getValidDb();
+    if (isFirebaseEnabled && db) {
       try {
-        await updateDoc(doc(firebaseDb!, collName, docId), updateData);
+        await updateDoc(doc(db, collName, docId), updateData);
       } catch (error: any) {
         // Fallback: If document is not found by document ID, try querying by custom 'id' field
         const errorMsg = error.message || "";
         if (error.code === 'not-found' || errorMsg.includes('No document to update') || errorMsg.includes('not found')) {
-          const q = query(collection(firebaseDb!, collName), where("id", "==", docId));
+          const q = query(collection(db, collName), where("id", "==", docId));
           const querySnapshot = await getDocs(q);
           if (!querySnapshot.empty) {
             await updateDoc(querySnapshot.docs[0].ref, updateData);
@@ -1032,17 +1122,17 @@ export const dbService = {
         throw error;
       }
     } else {
-      const collectionData = getLocalData(collName) || [];
-      const index = collectionData.findIndex((item: any) => item.id === docId);
-      if (index > -1) {
-        collectionData[index] = { ...collectionData[index], ...updateData };
-        setLocalData(collName, collectionData);
-      } else {
-        // Check if map structure (e.g. users collection is structured as a map in mock)
-        const mapData = getLocalData(collName);
-        if (mapData && mapData[docId]) {
-          mapData[docId] = { ...mapData[docId], ...updateData };
-          setLocalData(collName, mapData);
+      const rawData = getLocalData(collName);
+      if (Array.isArray(rawData)) {
+        const index = rawData.findIndex((item: any) => item.id === docId || item.uid === docId);
+        if (index > -1) {
+          rawData[index] = { ...rawData[index], ...updateData };
+          setLocalData(collName, rawData);
+        }
+      } else if (rawData && typeof rawData === "object") {
+        if (rawData[docId]) {
+          rawData[docId] = { ...rawData[docId], ...updateData };
+          setLocalData(collName, rawData);
         }
       }
     }
@@ -1064,19 +1154,20 @@ export const dbService = {
       }
     }
 
-    if (isFirebaseEnabled) {
+    const db = getValidDb();
+    if (isFirebaseEnabled && db) {
       try {
-        await deleteDoc(doc(firebaseDb!, collName, docId));
+        await deleteDoc(doc(db, collName, docId));
 
         // Also check if there exists a legacy/mismatched document to delete
-        const q = query(collection(firebaseDb!, collName), where("id", "==", docId));
+        const q = query(collection(db, collName), where("id", "==", docId));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
           await deleteDoc(querySnapshot.docs[0].ref);
         }
       } catch (error: any) {
         // Try fallback query on any deletion failure
-        const q = query(collection(firebaseDb!, collName), where("id", "==", docId));
+        const q = query(collection(db, collName), where("id", "==", docId));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
           await deleteDoc(querySnapshot.docs[0].ref);
@@ -1096,19 +1187,19 @@ export const dbService = {
     }
   },
 
-
-
   // Query documents with filters
   queryDocuments: async <T>(collName: string, filters: { field: string; operator: "==" | ">" | "<" | "array-contains"; value: any }[]): Promise<T[]> => {
-    if (isFirebaseEnabled) {
-      let q = query(collection(firebaseDb!, collName));
+    const db = getValidDb();
+    if (isFirebaseEnabled && db) {
+      let q = query(collection(db, collName));
       filters.forEach(f => {
         q = query(q, where(f.field, f.operator, f.value));
       });
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as T[];
     } else {
-      const collectionData = (getLocalData(collName) || []) as any[];
+      const rawData = getLocalData(collName) || [];
+      const collectionData = (Array.isArray(rawData) ? rawData : Object.values(rawData)) as any[];
       return collectionData.filter(item => {
         return filters.every(f => {
           if (f.operator === "==") return item[f.field] === f.value;
@@ -1130,8 +1221,9 @@ export const storageService = {
     onProgress: (progress: number) => void
   ): Promise<string> => {
     return new Promise((resolve, reject) => {
-      if (isFirebaseEnabled) {
-        const storageRef = ref(firebaseStorage!, path);
+      const storage = getValidStorage();
+      if (isFirebaseEnabled && storage) {
+        const storageRef = ref(storage, path);
         const uploadTask = uploadBytesResumable(storageRef, file);
 
         uploadTask.on(
@@ -1177,9 +1269,10 @@ export const storageService = {
       return;
     }
 
-    if (isFirebaseEnabled && firebaseStorage) {
+    const storage = getValidStorage();
+    if (isFirebaseEnabled && storage) {
       try {
-        const fileRef = ref(firebaseStorage, pathOrUrl);
+        const fileRef = ref(storage, pathOrUrl);
         await deleteObject(fileRef);
       } catch (err: any) {
         // If file was already removed or invalid ref, log warning without throwing

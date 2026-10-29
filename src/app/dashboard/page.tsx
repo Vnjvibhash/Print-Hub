@@ -222,7 +222,7 @@ export default function CustomerDashboard() {
                           
                           <h3 className="font-bold text-sm text-zinc-900 dark:text-white">{ord.serviceName}</h3>
                           <p className="text-[11px] text-zinc-400 leading-none">
-                            Placed on {new Date(ord.createdAt).toLocaleDateString()} • Qty: {ord.quantity} • Total: ₹{ord.priceBreakdown.total.toFixed(2)}
+                            Placed on {new Date(ord.createdAt).toLocaleDateString()} • Qty: {ord.quantity} • Total: ₹{(ord.priceBreakdown?.total ?? 0).toFixed(2)}
                           </p>
                           {ord.orderStatus === "Delivered" && (
                             <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">

@@ -90,7 +90,8 @@ export function generateInvoicePDF(order: Order, companySettings: {
   doc.setTextColor(60, 60, 60);
 
   // Format specifications string for display
-  const specs = order.specifications;
+  const specs = order.specifications || {};
+  const pb = order.priceBreakdown || { base: 0, optionsPrice: 0, subtotal: 0, gst: 0, total: 0 };
   const specList: string[] = [];
   if (specs.paperSize) specList.push(specs.paperSize);
   if (specs.colorMode) specList.push(specs.colorMode === "color" ? "Color" : "B/W");
@@ -101,21 +102,21 @@ export function generateInvoicePDF(order: Order, companySettings: {
   const specsStr = specList.join(", ");
 
   doc.setFont("Helvetica", "bold");
-  doc.text(order.serviceName, 18, currentY + 8);
+  doc.text(order.serviceName || "Print Service", 18, currentY + 8);
   
   doc.setFont("Helvetica", "normal");
   // Multi-line descriptions support
   const descText = doc.splitTextToSize(specsStr, 40);
   doc.text(descText, 85, currentY + 8);
   
-  doc.text(`Rs. ${order.priceBreakdown.base.toFixed(2)}`, 130, currentY + 8);
-  doc.text(order.quantity.toString(), 155, currentY + 8);
-  doc.text(`Rs. ${order.priceBreakdown.subtotal.toFixed(2)}`, 175, currentY + 8);
+  doc.text(`Rs. ${(pb.base || 0).toFixed(2)}`, 130, currentY + 8);
+  doc.text((order.quantity || 1).toString(), 155, currentY + 8);
+  doc.text(`Rs. ${(pb.subtotal || 0).toFixed(2)}`, 175, currentY + 8);
 
   // Options add-ons details row if present
-  if (order.priceBreakdown.optionsPrice > 0) {
+  if ((pb.optionsPrice || 0) > 0) {
     doc.text("Binding / finishing add-ons", 18, currentY + 16);
-    doc.text(`Rs. ${order.priceBreakdown.optionsPrice.toFixed(2)}`, 130, currentY + 16);
+    doc.text(`Rs. ${(pb.optionsPrice || 0).toFixed(2)}`, 130, currentY + 16);
     doc.text("-", 155, currentY + 16);
     doc.text(`Included`, 175, currentY + 16);
   }
@@ -125,10 +126,10 @@ export function generateInvoicePDF(order: Order, companySettings: {
   doc.setFont("Helvetica", "normal");
   doc.setFontSize(8);
   doc.text("Subtotal:", 135, currentY);
-  doc.text(`Rs. ${order.priceBreakdown.subtotal.toFixed(2)}`, 175, currentY);
+  doc.text(`Rs. ${(pb.subtotal || 0).toFixed(2)}`, 175, currentY);
 
   doc.text("GST Tax (18%):", 135, currentY + 5);
-  doc.text(`Rs. ${order.priceBreakdown.gst.toFixed(2)}`, 175, currentY + 5);
+  doc.text(`Rs. ${(pb.gst || 0).toFixed(2)}`, 175, currentY + 5);
 
   doc.line(135, currentY + 8, 196, currentY + 8);
 
@@ -136,7 +137,7 @@ export function generateInvoicePDF(order: Order, companySettings: {
   doc.setFontSize(10);
   doc.setTextColor(79, 70, 229);
   doc.text("TOTAL AMOUNT:", 135, currentY + 13);
-  doc.text(`Rs. ${order.priceBreakdown.total.toFixed(2)}`, 175, currentY + 13);
+  doc.text(`Rs. ${(pb.total || 0).toFixed(2)}`, 175, currentY + 13);
 
   // 7. Footer UPI Verification Notes
   currentY += 24;
